@@ -74,7 +74,7 @@ Your API should be able to:
 
 3. Set `targetTemperature` when it receives:
 ```
-/targetTemperature/{FLOAT_VALUE}
+/targetTemperature/{INT_VALUE}
 ```
 
 ## HeatingCoolingState Key
