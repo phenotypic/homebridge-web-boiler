@@ -4,7 +4,7 @@ var request = require('request');
 module.exports = function(homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory('homebridge-web-boiler', 'boiler', Boiler);
+  homebridge.registerAccessory('homebridge-web-boiler', 'Boiler', Boiler);
 };
 
 function Boiler(log, config) {
@@ -70,7 +70,7 @@ Boiler.prototype = {
         this.log('[!] Error getting status: %s', error.message);
         callback(error);
       } else {
-        this.log('[*] Thermostat response:', responseBody);
+        this.log('[*] Boiler response:', responseBody);
         var json = JSON.parse(responseBody);
         this.service.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature);
         this.log('[*] Updated TargetTemperature:', json.targetTemperature);
