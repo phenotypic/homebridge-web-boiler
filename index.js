@@ -154,7 +154,9 @@ Boiler.prototype = {
       .on('set', this.setTargetTemperature.bind(this));
 
     this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState)
-     .setProps({ maxValue: Characteristic.TargetHeatingCoolingState.HEAT });
+      .setProps({
+        maxValue: Characteristic.TargetHeatingCoolingState.HEAT
+      });
 
     this.service.getCharacteristic(Characteristic.CurrentTemperature)
       .setProps({
