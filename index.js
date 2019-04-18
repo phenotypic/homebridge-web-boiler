@@ -68,6 +68,7 @@ Boiler.prototype = {
     this._httpRequest(url, '', this.http_method, function(error, response, responseBody) {
       if (error) {
         this.log('[!] Error getting status: %s', error.message);
+        this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error("Polling failed"));
         callback(error);
       } else {
         this.log('[*] Boiler response:', responseBody);
@@ -115,21 +116,6 @@ Boiler.prototype = {
         callback(error);
       } else {
         this.log('[*] Sucessfully set targetTemperature to:', value);
-        callback();
-      }
-    }.bind(this));
-  },
-
-  setCoolingThresholdTemperature: function(value, callback) {
-    var url = this.apiroute + '/coolingThresholdTemperature/' + value;
-    this.log('[+] Setting coolingThresholdTemperature:', url);
-
-    this._httpRequest(url, '', this.http_method, function(error, response, responseBody) {
-      if (error) {
-        this.log('[!] Error setting coolingThresholdTemperature', error.message);
-        callback(error);
-      } else {
-        this.log('[*] Sucessfully set coolingThresholdTemperature to:', value);
         callback();
       }
     }.bind(this));
