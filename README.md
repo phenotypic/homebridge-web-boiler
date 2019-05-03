@@ -1,10 +1,10 @@
 # homebridge-web-boiler
 
-#### Homebridge plugin to control a web-based boiler
+[![npm](https://img.shields.io/npm/dt/homebridge-web-boiler.svg)](https://www.npmjs.com/package/homebridge-web-boiler) [![npm](https://img.shields.io/npm/v/homebridge-web-boiler.svg)](https://www.npmjs.com/package/homebridge-web-boiler)
 
 ## Description
 
-homebridge-web-boiler exposes a boiler to HomeKit and makes it controllable via HTTP requests. The plugin will poll your boiler at regular intervals and present you with this information when requested. The plugin also allows you so control a number boiler variables via HomeKit such as the target temperature.
+This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-based boiler to to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, you can turn on/off the boiler as well as control it's temperature.
 
 ## Installation
 
