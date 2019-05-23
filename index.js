@@ -100,7 +100,7 @@ Boiler.prototype = {
         callback(error);
       } else {
         this.log('[*] Sucessfully set targetHeatingCoolingState to:', value);
-        this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
+        this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(value);
         callback();
       }
     }.bind(this));
