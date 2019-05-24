@@ -99,7 +99,7 @@ Boiler.prototype = {
         this.log('[!] Error setting targetHeatingCoolingState: %s', error.message);
         callback(error);
       } else {
-        this.log('[*] Sucessfully set targetHeatingCoolingState to:', value);
+        this.log('[*] Successfully set targetHeatingCoolingState to:', value);
         this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(value);
         callback();
       }
@@ -115,7 +115,7 @@ Boiler.prototype = {
         this.log('[!] Error setting targetTemperature', error.message);
         callback(error);
       } else {
-        this.log('[*] Sucessfully set targetTemperature to:', value);
+        this.log('[*] Successfully set targetTemperature to:', value);
         callback();
       }
     }.bind(this));
