@@ -4,7 +4,7 @@
 
 ## Description
 
-This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-based boiler to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, the plugin allows you to turn on/off the boiler as well as control the target temperature.
+This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-based boiler to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, the plugin allows you to turn on/off the boiler and control the target temperature.
 
 ## Installation
 
