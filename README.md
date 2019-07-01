@@ -39,7 +39,7 @@ This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-ba
 | `currentRelativeHumidity` _(optional)_ | Whether to include `currentRelativeHumidity` as a field in `/status` | `false` |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app | `30` |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app | `15` |
-| `listener` | Whether to start a listener to get real-time changes form the device | `false` |
+| `listener` | Whether to start a listener to get real-time changes from the device | `false` |
 
 ### Additional options
 | Key | Description | Default |
