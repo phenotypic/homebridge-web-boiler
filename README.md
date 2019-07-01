@@ -80,7 +80,7 @@ Your API should be able to:
 /targetTemperature/INT_VALUE
 ```
 
-### Optionally (if listener is enabled)
+### Optional (if listener is enabled)
 
 1. Update `targetHeatingCoolingState` following a manual override by messaging the listen server:
 ```
