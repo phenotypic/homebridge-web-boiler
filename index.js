@@ -16,6 +16,7 @@ function Boiler (log, config) {
   this.name = config.name
   this.apiroute = config.apiroute
   this.pollInterval = config.pollInterval || 300
+
   this.listener = config.listener || false
   this.port = config.port || 2000
   this.requestArray = ['targetHeatingCoolingState', 'targetTemperature']
