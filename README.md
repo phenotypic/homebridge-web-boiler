@@ -39,11 +39,13 @@ This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-ba
 | `currentRelativeHumidity` _(optional)_ | Whether to include `currentRelativeHumidity` as a field in `/status` | `false` |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app | `30` |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app | `15` |
+| `listener` | Whether to start a listener to get real-time changes form the device | `false` |
 
 ### Additional options
 | Key | Description | Default |
 | --- | --- | --- |
 | `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
+| `port` _(optional)_ | Port for your HTTP listener (if enabled) | `2000` |
 | `http_method` _(optional)_ | HTTP method used to communicate with the device | `GET` |
 | `username` _(optional)_ | Username if HTTP authentication is enabled | N/A |
 | `password` _(optional)_ | Password if HTTP authentication is enabled | N/A |
@@ -74,6 +76,18 @@ Your API should be able to:
 ```
 
 3. Set `targetTemperature` when it receives:
+```
+/targetTemperature/INT_VALUE
+```
+
+### Optionally (if listener is enabled)
+
+1. Update `targetHeatingCoolingState` following a manual override by messaging the listen server:
+```
+/targetHeatingCoolingState/INT_VALUE
+```
+
+2. Update `targetTemperature` following a manual override by messaging the listen server:
 ```
 /targetTemperature/INT_VALUE
 ```
