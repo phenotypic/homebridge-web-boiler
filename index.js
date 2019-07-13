@@ -89,7 +89,7 @@ Boiler.prototype = {
 
   _getStatus: function (callback) {
     var url = this.apiroute + '/status'
-    this.log('Getting status: %s', url)
+    this.log.debug('Getting status: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
@@ -97,19 +97,19 @@ Boiler.prototype = {
         this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error('Polling failed'))
         callback(error)
       } else {
-        this.log('Boiler response: %s', responseBody)
+        this.log.debug('Device response: %s', responseBody)
         var json = JSON.parse(responseBody)
         this.service.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
-        this.log('Updated TargetTemperature: %s', json.targetTemperature)
+        this.log('Updated TargetTemperature to: %s', json.targetTemperature)
         this.service.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
-        this.log('Updated CurrentTemperature: %s', json.currentTemperature)
+        this.log('Updated CurrentTemperature to: %s', json.currentTemperature)
         this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.targetHeatingCoolingState)
-        this.log('Updated TargetHeatingCoolingState: %s', json.targetHeatingCoolingState)
+        this.log('Updated TargetHeatingCoolingState to: %s', json.targetHeatingCoolingState)
         this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.currentHeatingCoolingState)
-        this.log('Updated CurrentHeatingCoolingState: %s', json.currentHeatingCoolingState)
+        this.log('Updated CurrentHeatingCoolingState to: %s', json.currentHeatingCoolingState)
         if (this.currentRelativeHumidity) {
           this.service.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(json.currentRelativeHumidity)
-          this.log('Updated CurrentRelativeHumidity: %s', json.currentRelativeHumidity)
+          this.log('Updated CurrentRelativeHumidity to: %s', json.currentRelativeHumidity)
         }
         callback()
       }
@@ -119,12 +119,12 @@ Boiler.prototype = {
   _httpHandler: function (characteristic, value) {
     switch (characteristic) {
       case 'targetHeatingCoolingState':
-        this.log('Updating %s to: %s', characteristic, value)
         this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
+        this.log('Updated %s to: %s', characteristic, value)
         break
       case 'targetTemperature':
-        this.log('Updating %s to: %s', characteristic, value)
         this.service.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+        this.log('Updated %s to: %s', characteristic, value)
         break
       default:
         this.log.warn('Unknown characteristic "%s" with value "%s"', characteristic, value)
@@ -133,14 +133,14 @@ Boiler.prototype = {
 
   setTargetHeatingCoolingState: function (value, callback) {
     var url = this.apiroute + '/targetHeatingCoolingState/' + value
-    this.log('Setting targetHeatingCoolingState: %s', url)
+    this.log.debug('Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
         this.log.warn('Error setting targetHeatingCoolingState: %s', error.message)
         callback(error)
       } else {
-        this.log('Successfully set targetHeatingCoolingState to: %s', value)
+        this.log('Set targetHeatingCoolingState to: %s', value)
         this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(value)
         callback()
       }
@@ -149,14 +149,14 @@ Boiler.prototype = {
 
   setTargetTemperature: function (value, callback) {
     var url = this.apiroute + '/targetTemperature/' + value
-    this.log('Setting targetTemperature: %s', url)
+    this.log.debug('Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
         this.log.warn('Error setting targetTemperature: %s', error.message)
         callback(error)
       } else {
-        this.log('Successfully set targetTemperature to: %s', value)
+        this.log('Set targetTemperature to: %s', value)
         callback()
       }
     }.bind(this))
