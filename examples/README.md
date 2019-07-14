@@ -8,7 +8,7 @@ This script is designed to interface with the plugin to expose an [OpenTherm](ht
 
 * [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-compatible appliance
 
-* [OpenTherm Adapter](http://ihormelnyk.com/arduino_opentherm_controller)
+* [OpenTherm adapter](http://ihormelnyk.com/arduino_opentherm_controller)
 
 * DHT11 Temperature Sensor
 
@@ -41,6 +41,8 @@ npm install -g homebridge-web-boiler
 ## Wiring
 
 ![Diagram](https://i.ibb.co/rpHztcr/Untitled-1.jpg)
+
+**Note:** `OT input` and `OT input` refer to the input and output of the OpenTherm adapter circuit and **not** direct connections to the boiler
 
 ## Notes
 
