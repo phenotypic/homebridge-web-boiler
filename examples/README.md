@@ -1,6 +1,6 @@
 ## Description
 
-This script interfaces with [homebridge](https://github.com/nfarina/homebridge) to expose an [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-enabled boiler to Apple's [HomeKit](http://www.apple.com/ios/home/), giving you similar functionality to more expensive smart-home thermostats like [Nest](https://nest.com/thermostats/).
+This script is designed to interface with the plugin to expose an [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-enabled boiler, giving you similar functionality to more expensive smart-home thermostats like [Nest](https://nest.com/thermostats/).
 
 ## Requirements
 
@@ -20,7 +20,7 @@ This script interfaces with [homebridge](https://github.com/nfarina/homebridge) 
 
 2. Build [this circuit](http://ihormelnyk.com/arduino_opentherm_controller) (find PCB files in the `PCB` folder in this repository or purchase from [here](https://www.openhardware.io/view/704/OpenTherm-Adapter)) in order to be able to interface the NodeMCU with the appliance
 
-3. Assuming that you already have [homebridge](https://github.com/nfarina/homebridge#installation) set up, the next thing you will have to do is install [homebridge-web-boiler](https://github.com/Tommrodrigues/homebridge-web-boiler) using the following command:
+3. Assuming that you already have [homebridge](https://github.com/nfarina/homebridge#installation) set up, the next thing you will have to do is install the plugin using the following command:
 ```
 npm install -g homebridge-web-boiler
 ```
