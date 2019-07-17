@@ -148,13 +148,14 @@ void loop() {
 
   Serial.println();
   Serial.println();
-  Serial.println("---------------------------");
+  Serial.println("===========================");
   Serial.println("Target State : " + String(targetHeatingCoolingState));
   Serial.println("Current State: " + String(currentHeatingCoolingState));
   Serial.println();
   Serial.println("Target Temperature : " + String(Setpoint));
   Serial.println("Current Temperature: " + String(Input));
-  Serial.println();
+  Serial.println("Relative Humidity  : " + String(relativeHumidity));
+  Serial.println("---------------------------");
   Serial.println("Boiler Status     : " + String(boilerState));
   Serial.println("Boiler Target     : " + String(boilerTargetTemp));
   Serial.println("Boiler Temperature: " + String(boilerCurrentTemp));
@@ -162,9 +163,7 @@ void loop() {
   Serial.println("Requesting Heating  : " + String(enableCentralHeating));
   Serial.println("Requesting Hot Water: " + String(enableHotWater));
   Serial.println("Requesting Cooling  : " + String(enableCooling));
-  Serial.println();
-  Serial.println("Relative Humidity   : " + String(relativeHumidity));
-  Serial.println("---------------------------");
+  Serial.println("===========================");
 
   MDNS.update();
 
@@ -207,13 +206,14 @@ void loop() {
   }
 
   if (request.indexOf("/diag") != -1) {
-    client.println("---------------------------");
+    client.println("===========================");
     client.println("Target State : " + String(targetHeatingCoolingState));
     client.println("Current State: " + String(currentHeatingCoolingState));
     client.println();
     client.println("Target Temperature : " + String(Setpoint));
     client.println("Current Temperature: " + String(Input));
-    client.println();
+    client.println("Relative Humidity  : " + String(relativeHumidity));
+    client.println("---------------------------");
     client.println("Boiler Status     : " + String(boilerState));
     client.println("Boiler Target     : " + String(boilerTargetTemp));
     client.println("Boiler Temperature: " + String(boilerCurrentTemp));
@@ -221,9 +221,7 @@ void loop() {
     client.println("Requesting Heating  : " + String(enableCentralHeating));
     client.println("Requesting Hot Water: " + String(enableHotWater));
     client.println("Requesting Cooling  : " + String(enableCooling));
-    client.println();
-    client.println("Relative Humidity   : " + String(relativeHumidity));
-    client.println("---------------------------");
+    client.println("===========================");
   }
 
   delay(1);
