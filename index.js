@@ -34,8 +34,8 @@ function Boiler (log, config) {
   this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0
 
   this.currentRelativeHumidity = config.currentRelativeHumidity || false
-  this.heatingMin = config.heatingMin || 15
-  this.heatingMax = config.heatingMax || 30
+  this.chMin = config.chMin || 15
+  this.chMax = config.chMax || 30
 
   this.dhw = config.dhw || false
   this.dhwName = config.dhwName || 'Hot Water'
@@ -246,8 +246,8 @@ Boiler.prototype = {
 
     this.chService.getCharacteristic(Characteristic.TargetTemperature)
       .setProps({
-        minValue: this.heatingMin,
-        maxValue: this.heatingMax,
+        minValue: this.chMin,
+        maxValue: this.chMax,
         minStep: 1
       })
 
