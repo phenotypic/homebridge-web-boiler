@@ -14,8 +14,9 @@
 const char* ssid = "SSID"; //Name of your network
 const char* password = "PASSWORD"; //Password for your network
 const char* mdns = "boiler"; //mDNS name
-double Setpoint = 22; //Initial setpoint
-int targetHeatingCoolingState = 0; //Initial state
+double Setpoint = 22; //Initial heating setpoint
+bool targetHeatingCoolingState = false; //Initial heating state
+bool dhwTargetState = true; //Initial DHW state
 //////////////////////////////////////////////////////////////
 
 // DHT declarations
@@ -34,14 +35,16 @@ double Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // OpenTherm initial declarations
-bool enableCentralHeating = false, enableHotWater = true, enableCooling = false;
+bool enableCooling = false;
+unsigned long ts = 0, new_ts = 0;
 OpenTherm ot(inPin, outPin);
 unsigned long request, response;
 
-// Other declarations
-int currentHeatingCoolingState, boilerState;
+// Variable declarations
+int currentHeatingCoolingState;
 float boilerCurrentTemp, boilerTargetTemp, ambientTemp, relativeHumidity;
-unsigned long ts = 0, new_ts = 0;
+int dhwCurrentState;
+float dhwCurrentTemperature, dhwTargetTemperature, dhwHigh, dhwLow;
 
 WiFiServer server(80);
 
@@ -107,6 +110,30 @@ void setup() {
 
   myPID.SetMode(AUTOMATIC);
   myPID.SetOutputLimits(MinTemp, MaxTemp);
+
+  // Get domestic hot water bounds
+  request = ot.buildRequest(
+    OpenThermRequestType::READ,
+    OpenThermMessageID::TdhwSetUBTdhwSetLB,
+    0x0000
+  );
+  response = ot.sendRequest(request);
+  dhwHigh = (response & 0xff00) >> 8;
+  dhwLow = response & 0x00ff;
+  Serial.println();
+  Serial.println("DHW upper bound: " + String(dhwHigh));
+  Serial.println("DHW lower bound: " + String(dhwLow));
+
+  // Get DHW set point
+  request = ot.buildRequest(
+    OpenThermRequestType::READ,
+    OpenThermMessageID::TdhwSet,
+    0x0000
+  );
+  response = ot.sendRequest(request);
+  dhwTargetTemperature = ot.getTemperature(response);
+  Serial.println();
+  Serial.println("DHW set point: " + String(dhwTargetTemperature));
 }
 
 void loop() {
@@ -119,50 +146,67 @@ void loop() {
   new_ts = millis();
   if (new_ts - ts > 1000) {
     ts = new_ts;
-    if (targetHeatingCoolingState == 0) {
-      enableCentralHeating = false;
-      boilerTargetTemp = MinTemp;
-    } else if (targetHeatingCoolingState == 1) {
+    if (targetHeatingCoolingState) {
       myPID.Compute();
-      enableCentralHeating = true;
       boilerTargetTemp = Output;
     } else {
-      Serial.println("Invalid targetHeatingCoolingState: " + String(targetHeatingCoolingState));
+      boilerTargetTemp = MinTemp;
     }
-    response = ot.setBoilerStatus(enableCentralHeating, enableHotWater, enableCooling);
+    response = ot.setBoilerStatus(targetHeatingCoolingState, dhwTargetState, enableCooling);
     if (ot.isValidResponse(response)) {
-      ot.setBoilerTemperature(boilerTargetTemp);
+      currentHeatingCoolingState = ot.isCentralHeatingActive(response);
       boilerCurrentTemp = ot.getBoilerTemperature();
-      boilerState = ot.isCentralHeatingActive(response);
+      ot.setBoilerTemperature(boilerTargetTemp);
+
+      dhwCurrentState = ot.isHotWaterActive(response);
+      // Get DHW temperature
+      request = ot.buildRequest(
+        OpenThermRequestType::READ,
+        OpenThermMessageID::Tdhw,
+        0x0000
+      );
+      response = ot.sendRequest(request);
+      dhwCurrentTemperature = ot.getTemperature(response);
+      // Set DHW temperature
+      unsigned int data = ot.temperatureToData(dhwTargetTemperature);
+      request = ot.buildRequest(
+        OpenThermRequestType::WRITE,
+        OpenThermMessageID::TdhwSet,
+        data
+      );
+      ot.sendRequest(request);
     } else {
       Serial.println("Error: Invalid boiler response " + String(response, HEX));
     }
   }
 
-  //Determine state to give to homebridge
-  if (boilerState == 1 && boilerCurrentTemp > MinTemp) {
-    currentHeatingCoolingState = 1;
-  } else {
-    currentHeatingCoolingState = 0;
-  }
-
   Serial.println();
   Serial.println();
-  Serial.println("===========================");
-  Serial.println("Target State : " + String(targetHeatingCoolingState));
-  Serial.println("Current State: " + String(currentHeatingCoolingState));
+  Serial.println("==========HEATING==========");
+  Serial.println("Target State       : " + String(targetHeatingCoolingState));
+  Serial.println("Current State      : " + String(currentHeatingCoolingState));
   Serial.println();
   Serial.println("Target Temperature : " + String(Setpoint));
   Serial.println("Current Temperature: " + String(Input));
-  Serial.println("Relative Humidity  : " + String(relativeHumidity));
-  Serial.println("---------------------------");
-  Serial.println("Boiler Status     : " + String(boilerState));
+  Serial.println();
+  Serial.println("Minimum Temperature: " + String(MinTemp));
+  Serial.println("Maximum Temperature: " + String(MaxTemp));
+  Serial.println("============DHW============");
+  Serial.println("Target State       : " + String(dhwTargetState));
+  Serial.println("Current State      : " + String(dhwCurrentState));
+  Serial.println();
+  Serial.println("Target Temperature : " + String(dhwTargetTemperature));
+  Serial.println("Current Temperature: " + String(dhwCurrentTemperature));
+  Serial.println();
+  Serial.println("Minimum Temperature: " + String(dhwLow));
+  Serial.println("Maximum Temperature: " + String(dhwHigh));
+  Serial.println("===========OTHER===========");
   Serial.println("Boiler Target     : " + String(boilerTargetTemp));
   Serial.println("Boiler Temperature: " + String(boilerCurrentTemp));
   Serial.println();
-  Serial.println("Requesting Heating  : " + String(enableCentralHeating));
-  Serial.println("Requesting Hot Water: " + String(enableHotWater));
-  Serial.println("Requesting Cooling  : " + String(enableCooling));
+  Serial.println("Requesting Cooling: " + String(enableCooling));
+  Serial.println();
+  Serial.println("Relative Humidity : " + String(relativeHumidity));
   Serial.println("===========================");
 
   MDNS.update();
@@ -197,30 +241,54 @@ void loop() {
     Setpoint = request.substring(23, 25).toFloat();
   }
 
+  if (request.indexOf("/dhwTargetState") != -1) {
+    dhwTargetState = request.substring(20, 21).toInt();
+  }
+
+  if (request.indexOf("/dhwTargetTemperature") != -1) {
+    dhwTargetTemperature = request.substring(26, 28).toFloat();
+  }
+
   if (request.indexOf("/status") != -1) {
     client.println("{\"targetHeatingCoolingState\": " + String(targetHeatingCoolingState) + ",");
     client.println("\"currentHeatingCoolingState\": " + String(currentHeatingCoolingState) + ",");
     client.println("\"targetTemperature\": " + String(Setpoint) + ",");
     client.println("\"currentTemperature\": " + String(Input) + ",");
+
+    client.println("\"dhwTargetState\": " + String(dhwTargetState) + ",");
+    client.println("\"dhwCurrentState\": " + String(dhwCurrentState) + ",");
+    client.println("\"dhwTargetTemperature\": " + String(dhwTargetTemperature) + ",");
+    client.println("\"dhwCurrentTemperature\": " + String(dhwCurrentTemperature) + ",");
+
     client.println("\"currentRelativeHumidity\": " + String(relativeHumidity) + "}");
   }
 
   if (request.indexOf("/diag") != -1) {
-    client.println("===========================");
-    client.println("Target State : " + String(targetHeatingCoolingState));
-    client.println("Current State: " + String(currentHeatingCoolingState));
+    client.println("==========HEATING==========");
+    client.println("Target State       : " + String(targetHeatingCoolingState));
+    client.println("Current State      : " + String(currentHeatingCoolingState));
     client.println();
     client.println("Target Temperature : " + String(Setpoint));
     client.println("Current Temperature: " + String(Input));
-    client.println("Relative Humidity  : " + String(relativeHumidity));
-    client.println("---------------------------");
-    client.println("Boiler Status     : " + String(boilerState));
+    client.println();
+    client.println("Minimum Temperature: " + String(MinTemp));
+    client.println("Maximum Temperature: " + String(MaxTemp));
+    client.println("============DHW============");
+    client.println("Target State       : " + String(dhwTargetState));
+    client.println("Current State      : " + String(dhwCurrentState));
+    client.println();
+    client.println("Target Temperature : " + String(dhwTargetTemperature));
+    client.println("Current Temperature: " + String(dhwCurrentTemperature));
+    client.println();
+    client.println("Minimum Temperature: " + String(dhwLow));
+    client.println("Maximum Temperature: " + String(dhwHigh));
+    client.println("===========OTHER===========");
     client.println("Boiler Target     : " + String(boilerTargetTemp));
     client.println("Boiler Temperature: " + String(boilerCurrentTemp));
     client.println();
-    client.println("Requesting Heating  : " + String(enableCentralHeating));
-    client.println("Requesting Hot Water: " + String(enableHotWater));
-    client.println("Requesting Cooling  : " + String(enableCooling));
+    client.println("Requesting Cooling: " + String(enableCooling));
+    client.println();
+    client.println("Relative Humidity : " + String(relativeHumidity));
     client.println("===========================");
   }
 
