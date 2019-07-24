@@ -33,7 +33,8 @@ npm install -g homebridge-web-boiler
        "accessory": "Boiler",
        "name": "Boiler",
        "apiroute": "http://boiler.local",
-       "currentRelativeHumidity": true
+       "currentRelativeHumidity": true,
+       "dhw": true
     }
 ]
 ```
@@ -46,4 +47,6 @@ npm install -g homebridge-web-boiler
 
 ## Notes
 
-- You can request `/diag` (diagnostics) from the NodeMCU via `curl` in order to receive info like the current state and the boiler temperature.
+- You can request `/diag` (diagnostics) from the NodeMCU via `curl` in order to receive more detailed information
+
+- The PID controller built into the script may need to be tuned manually as the desired behaviour of the controller will vary from home to home. This can be done by editing the `Kp`, `Ki`, and `Kd` variables within the script
