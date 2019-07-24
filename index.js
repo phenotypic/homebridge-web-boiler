@@ -19,7 +19,7 @@ function Boiler (log, config) {
 
   this.listener = config.listener || false
   this.port = config.port || 2000
-  this.requestArray = ['targetHeatingCoolingState', 'targetTemperature']
+  this.requestArray = ['targetHeatingCoolingState', 'targetTemperature', 'dhwTargetState', 'dhwTargetTemperature']
 
   this.manufacturer = config.manufacturer || packageJson.author.name
   this.serial = config.serial || this.apiroute
@@ -31,10 +31,16 @@ function Boiler (log, config) {
   this.timeout = config.timeout || 3000
   this.http_method = config.http_method || 'GET'
 
-  this.currentRelativeHumidity = config.currentRelativeHumidity || false
   this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0
-  this.maxTemp = config.maxTemp || 30
-  this.minTemp = config.minTemp || 15
+
+  this.currentRelativeHumidity = config.currentRelativeHumidity || false
+  this.heatingMin = config.heatingMin || 15
+  this.heatingMax = config.heatingMax || 30
+
+  this.dhw = config.dhw || false
+  this.dhwName = config.dhwName || 'Hot Water'
+  this.dhwMin = config.dhwMin || 40
+  this.dhwMax = config.dhwMax || 50
 
   if (this.username != null && this.password != null) {
     this.auth = {
@@ -62,8 +68,6 @@ function Boiler (log, config) {
       this.log('Listen server: http://%s:%s', ip.address(), this.port)
     }.bind(this))
   }
-
-  this.service = new Service.Thermostat(this.name)
 }
 
 Boiler.prototype = {
@@ -94,22 +98,32 @@ Boiler.prototype = {
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
         this.log.warn('Error getting status: %s', error.message)
-        this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error('Polling failed'))
+        this.chService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error('Polling failed'))
         callback(error)
       } else {
         this.log.debug('Device response: %s', responseBody)
         var json = JSON.parse(responseBody)
-        this.service.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
-        this.log('Updated TargetTemperature to: %s', json.targetTemperature)
-        this.service.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
-        this.log('Updated CurrentTemperature to: %s', json.currentTemperature)
-        this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.targetHeatingCoolingState)
-        this.log('Updated TargetHeatingCoolingState to: %s', json.targetHeatingCoolingState)
-        this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.currentHeatingCoolingState)
-        this.log('Updated CurrentHeatingCoolingState to: %s', json.currentHeatingCoolingState)
+        this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
+        this.log('CH | Updated TargetTemperature to: %s', json.targetTemperature)
+        this.chService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
+        this.log('CH | Updated CurrentTemperature to: %s', json.currentTemperature)
+        this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.targetHeatingCoolingState)
+        this.log('CH | Updated TargetHeatingCoolingState to: %s', json.targetHeatingCoolingState)
+        this.chService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.currentHeatingCoolingState)
+        this.log('CH | Updated CurrentHeatingCoolingState to: %s', json.currentHeatingCoolingState)
         if (this.currentRelativeHumidity) {
-          this.service.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(json.currentRelativeHumidity)
-          this.log('Updated CurrentRelativeHumidity to: %s', json.currentRelativeHumidity)
+          this.chService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(json.currentRelativeHumidity)
+          this.log('CH | Updated CurrentRelativeHumidity to: %s', json.currentRelativeHumidity)
+        }
+        if (this.dhw) {
+          this.dhwService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.dhwTargetTemperature)
+          this.log('DHW | Updated TargetTemperature to: %s', json.dhwTargetTemperature)
+          this.dhwService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.dhwCurrentTemperature)
+          this.log('DHW | Updated CurrentTemperature to: %s', json.dhwCurrentTemperature)
+          this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.dhwTargetState)
+          this.log('DHW | Updated TargetHeatingCoolingState to: %s', json.dhwTargetState)
+          this.dhwService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.dhwCurrentState)
+          this.log('DHW | Updated CurrentHeatingCoolingState to: %s', json.dhwCurrentState)
         }
         callback()
       }
@@ -119,12 +133,20 @@ Boiler.prototype = {
   _httpHandler: function (characteristic, value) {
     switch (characteristic) {
       case 'targetHeatingCoolingState':
-        this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
-        this.log('Updated %s to: %s', characteristic, value)
+        this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
+        this.log('CH | CH | Updated %s to: %s', characteristic, value)
         break
       case 'targetTemperature':
-        this.service.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
-        this.log('Updated %s to: %s', characteristic, value)
+        this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+        this.log('CH | Updated %s to: %s', characteristic, value)
+        break
+      case 'dhwTargetState':
+        this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
+        this.log('DHW | Updated %s to: %s', characteristic, value)
+        break
+      case 'dhwTargetTemperature':
+        this.dhwService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+        this.log('DHW | Updated %s to: %s', characteristic, value)
         break
       default:
         this.log.warn('Unknown characteristic "%s" with value "%s"', characteristic, value)
@@ -133,15 +155,14 @@ Boiler.prototype = {
 
   setTargetHeatingCoolingState: function (value, callback) {
     var url = this.apiroute + '/targetHeatingCoolingState/' + value
-    this.log.debug('Setting targetHeatingCoolingState: %s', url)
+    this.log.debug('CH | Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
-        this.log.warn('Error setting targetHeatingCoolingState: %s', error.message)
+        this.log.warn('CH | Error setting targetHeatingCoolingState: %s', error.message)
         callback(error)
       } else {
-        this.log('Set targetHeatingCoolingState to: %s', value)
-        this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(value)
+        this.log('CH | Set targetHeatingCoolingState to: %s', value)
         callback()
       }
     }.bind(this))
@@ -149,14 +170,44 @@ Boiler.prototype = {
 
   setTargetTemperature: function (value, callback) {
     var url = this.apiroute + '/targetTemperature/' + value
-    this.log.debug('Setting targetTemperature: %s', url)
+    this.log.debug('CH | Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
       if (error) {
-        this.log.warn('Error setting targetTemperature: %s', error.message)
+        this.log.warn('CH | Error setting targetTemperature: %s', error.message)
         callback(error)
       } else {
-        this.log('Set targetTemperature to: %s', value)
+        this.log('CH | Set targetTemperature to: %s', value)
+        callback()
+      }
+    }.bind(this))
+  },
+
+  setDHWState: function (value, callback) {
+    var url = this.apiroute + '/dhwTargetState/' + value
+    this.log.debug('DHW | Setting targetHeatingCoolingState: %s', url)
+
+    this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
+      if (error) {
+        this.log.warn('DHW | Error setting targetHeatingCoolingState: %s', error.message)
+        callback(error)
+      } else {
+        this.log('DHW | Set targetHeatingCoolingState to: %s', value)
+        callback()
+      }
+    }.bind(this))
+  },
+
+  setDHWTemperature: function (value, callback) {
+    var url = this.apiroute + '/dhwTargetTemperature/' + value
+    this.log.debug('DHW | Setting targetTemperature: %s', url)
+
+    this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
+      if (error) {
+        this.log.warn('DHW | Error setting targetTemperature: %s', error.message)
+        callback(error)
+      } else {
+        this.log('DHW | Set targetTemperature to: %s', value)
         callback()
       }
     }.bind(this))
@@ -170,34 +221,70 @@ Boiler.prototype = {
       .setCharacteristic(Characteristic.SerialNumber, this.serial)
       .setCharacteristic(Characteristic.FirmwareRevision, this.firmware)
 
-    this.service.getCharacteristic(Characteristic.TemperatureDisplayUnits).updateValue(this.temperatureDisplayUnits)
+    this.chService = new Service.Thermostat(this.name, 1)
+    this.chService.getCharacteristic(Characteristic.TemperatureDisplayUnits).updateValue(this.temperatureDisplayUnits)
 
-    this.service
+    this.chService
       .getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .on('set', this.setTargetHeatingCoolingState.bind(this))
 
-    this.service
+    this.chService
       .getCharacteristic(Characteristic.TargetTemperature)
       .on('set', this.setTargetTemperature.bind(this))
 
-    this.service.getCharacteristic(Characteristic.TargetHeatingCoolingState)
+    this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .setProps({
         maxValue: Characteristic.TargetHeatingCoolingState.HEAT
       })
 
-    this.service.getCharacteristic(Characteristic.CurrentTemperature)
+    this.chService.getCharacteristic(Characteristic.CurrentTemperature)
       .setProps({
         minValue: -100,
         maxValue: 100,
         minStep: 0.1
       })
 
-    this.service.getCharacteristic(Characteristic.TargetTemperature)
+    this.chService.getCharacteristic(Characteristic.TargetTemperature)
       .setProps({
-        minValue: this.minTemp,
-        maxValue: this.maxTemp,
+        minValue: this.heatingMin,
+        maxValue: this.heatingMax,
         minStep: 1
       })
+
+    var services = [this.informationService, this.chService]
+
+    if (this.dhw) {
+      this.dhwService = new Service.Thermostat(this.dhwName, 2)
+      this.dhwService.getCharacteristic(Characteristic.TemperatureDisplayUnits).updateValue(this.temperatureDisplayUnits)
+
+      this.dhwService
+        .getCharacteristic(Characteristic.TargetHeatingCoolingState)
+        .on('set', this.setDHWState.bind(this))
+
+      this.dhwService
+        .getCharacteristic(Characteristic.TargetTemperature)
+        .on('set', this.setDHWTemperature.bind(this))
+
+      this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState)
+        .setProps({
+          maxValue: Characteristic.TargetHeatingCoolingState.HEAT
+        })
+
+      this.dhwService.getCharacteristic(Characteristic.CurrentTemperature)
+        .setProps({
+          minValue: -100,
+          maxValue: 100,
+          minStep: 0.1
+        })
+
+      this.dhwService.getCharacteristic(Characteristic.TargetTemperature)
+        .setProps({
+          minValue: this.dhwMin,
+          maxValue: this.dhwMax,
+          minStep: 1
+        })
+      services.push(this.dhwService)
+    }
 
     this._getStatus(function () {})
 
@@ -205,6 +292,6 @@ Boiler.prototype = {
       this._getStatus(function () {})
     }.bind(this), this.pollInterval * 1000)
 
-    return [this.informationService, this.service]
+    return services
   }
 }
