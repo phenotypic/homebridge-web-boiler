@@ -20,7 +20,7 @@ Find script samples for the boiler controller in the _examples_ folder.
 "accessories": [
      {
        "accessory": "Boiler",
-       "name": "Boiler",
+       "name": "Thermostat",
        "apiroute": "http://myurl.com"
      }
 ]
