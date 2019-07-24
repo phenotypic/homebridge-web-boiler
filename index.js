@@ -99,6 +99,9 @@ Boiler.prototype = {
       if (error) {
         this.log.warn('Error getting status: %s', error.message)
         this.chService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error('Polling failed'))
+        if (this.dw) {
+          this.dhwService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(new Error('Polling failed'))
+        }
         callback(error)
       } else {
         this.log.debug('Device response: %s', responseBody)
