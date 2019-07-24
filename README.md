@@ -4,7 +4,7 @@
 
 ## Description
 
-This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-based boiler to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, the plugin allows you to turn on/off the boiler and control the target temperature.
+This [homebridge](https://github.com/nfarina/homebridge) plugin exposes a web-based boiler to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, the plugin allows you to control both central heating and hot water.
 
 Find script samples for the boiler controller in the _examples_ folder.
 
@@ -36,25 +36,29 @@ Find script samples for the boiler controller in the _examples_ folder.
 ### Optional fields
 | Key | Description | Default |
 | --- | --- | --- |
-| `pollInterval` _(optional)_ | Time (in seconds) between device polls | `300` |
-| `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units | `0` |
-| `currentRelativeHumidity` _(optional)_ | Whether to include `currentRelativeHumidity` as a field in `/status` | `false` |
-| `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app | `30` |
-| `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app | `15` |
-| `listener` | Whether to start a listener to get real-time changes from the device | `false` |
+| `temperatureDisplayUnits` | Whether you want °C (`0`) or °F (`1`) as your units | `0` |
+| `currentRelativeHumidity` | Whether to include `currentRelativeHumidity` as a field in `/status` | `false` |
+| `chMin` | Lower bound for the temperature selector in the Home app | `15` |
+| `chMax` | Upper bound for the temperature selector in the Home app | `30` |
+| `dhw` | Whether you want to expose hot water control as an extra accessory | `false` |
+| `dhwName` | Name for the extra hot water accessory | `Hot Water` |
+| `dhwMin` | Lower bound for the hot water in the Home app | `40` |
+| `dhwMax` | Upper bound for the hot water in the Home app | `50` |
 
 ### Additional options
 | Key | Description | Default |
 | --- | --- | --- |
-| `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
-| `port` _(optional)_ | Port for your HTTP listener (if enabled) | `2000` |
-| `http_method` _(optional)_ | HTTP method used to communicate with the device | `GET` |
-| `username` _(optional)_ | Username if HTTP authentication is enabled | N/A |
-| `password` _(optional)_ | Password if HTTP authentication is enabled | N/A |
-| `model` _(optional)_ | Appears under the _Model_ field for the accessory | plugin |
-| `serial` _(optional)_ | Appears under the _Serial_ field for the accessory | apiroute |
-| `manufacturer` _(optional)_ | Appears under the _Manufacturer_ field for the accessory | author |
-| `firmware` _(optional)_ | Appears under the _Firmware_ field for the accessory | version |
+| `pollInterval` | Time (in seconds) between device polls | `300` |
+| `listener` | Whether to start a listener to get real-time changes from the device | `false` |
+| `timeout` | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
+| `port` | Port for your HTTP listener (if enabled) | `2000` |
+| `http_method` | HTTP method used to communicate with the device | `GET` |
+| `username` | Username if HTTP authentication is enabled | N/A |
+| `password` | Password if HTTP authentication is enabled | N/A |
+| `model` | Appears under the _Model_ field for the accessory | plugin |
+| `serial` | Appears under the _Serial_ field for the accessory | apiroute |
+| `manufacturer` | Appears under the _Manufacturer_ field for the accessory | author |
+| `firmware` | Appears under the _Firmware_ field for the accessory | version |
 
 ## API Interfacing
 
@@ -70,7 +74,13 @@ Your API should be able to:
 }
 ```
 
-**Note:** You must also include `currentRelativeHumidity` in `/status` if enabled in the `config.json`
+**Note:** You must also include the following fields in `/status` where relevant:
+
+- `currentRelativeHumidity` (if `currentRelativeHumidity` is enabled)
+- `dhwTargetState` (if `dhw` is enabled)
+- `dhwCurrentState` (if `dhw` is enabled)
+- `dhwTargetTemperature` (if `dhw` is enabled)
+- `dhwCurrentTemperature` (if `dhw` is enabled)
 
 2. Set `targetHeatingCoolingState` when it receives:
 ```
@@ -80,6 +90,16 @@ Your API should be able to:
 3. Set `targetTemperature` when it receives:
 ```
 /targetTemperature/INT_VALUE
+```
+
+4. Set `dhwTargetState` when it receives: (if `dhw` is enabled)
+```
+/dhwTargetState/INT_VALUE
+```
+
+5. Set `dhwTargetTemperature` when it receives: (if `dhw` is enabled)
+```
+/dhwTargetTemperature/INT_VALUE
 ```
 
 ### Optional (if listener is enabled)
@@ -94,9 +114,12 @@ Your API should be able to:
 /targetTemperature/INT_VALUE
 ```
 
-## HeatingCoolingState Key
+3. Update `dhwTargetState` following a manual override by messaging the listen server: (if `dhw` is enabled)
+```
+/dhwTargetState/INT_VALUE
+```
 
-| Number | Name |
-| --- | --- |
-| `0` | Off |
-| `1` | Heat |
+4. Update `dhwTargetTemperature` following a manual override by messaging the listen server: (if `dhw` is enabled)
+```
+/dhwTargetTemperature/INT_VALUE
+```
