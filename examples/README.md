@@ -18,7 +18,7 @@ This script is designed to interface with the plugin to expose an [OpenTherm](ht
 
 1. First, install the `PID` and `OpenTherm Library` libraries from the _Library manager_ in the Arduino IDE, then follow [this](https://gist.github.com/Tommrodrigues/8d9d3b886936ccea9c21f495755640dd) gist which walks you through how to flash a NodeMCU. The `.ino` file referred to in the gist is the `NodeMCU-Boiler.ino` file included in this repository
 
-2. Build [this circuit](http://ihormelnyk.com/arduino_opentherm_controller) (find PCB files in the `PCB` folder in this repository or purchase from [here](https://www.openhardware.io/view/704/OpenTherm-Adapter)) in order to be able to interface the NodeMCU with the appliance
+2. Build [this circuit](http://ihormelnyk.com/arduino_opentherm_controller) in order to be able to interface the NodeMCU with the appliance
 
 3. Assuming that you already have [homebridge](https://github.com/nfarina/homebridge#installation) set up, the next thing you will have to do is install the plugin:
 ```
