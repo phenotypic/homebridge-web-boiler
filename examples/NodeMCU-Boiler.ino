@@ -30,8 +30,7 @@ const int outPin = 5;
 
 // Specify the links and initial tuning parameters for PID
 double Kp = 10, Ki = 5, Kd = 8;
-double MinTemp = 20, MaxTemp = 90;
-double Input, Output;
+double MinTemp, MaxTemp, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // OpenTherm initial declarations
@@ -99,10 +98,15 @@ void setup() {
     0x0000
   );
   response = ot.sendRequest(request);
-  if (ot.isValidResponse(response)) {
-    MaxTemp = (response & 0xff00) >> 8;
-    MinTemp = response & 0x00ff;
+
+  while (!ot.isValidResponse(response)) {
+    Serial.println("Invalid response, waiting 5 seconds to retry...");
+    delay(5000);
+    response = ot.sendRequest(request);
   }
+
+  MaxTemp = (response & 0xff00) >> 8;
+  MinTemp = response & 0x00ff;
 
   Serial.println();
   Serial.println("Heating upper bound: " + String(MaxTemp));
@@ -133,7 +137,7 @@ void setup() {
   response = ot.sendRequest(request);
   dhwTargetTemperature = ot.getTemperature(response);
   Serial.println();
-  Serial.println("DHW set point: " + String(dhwTargetTemperature));
+  Serial.println("DHW setpoint: " + String(dhwTargetTemperature));
 }
 
 void loop() {
@@ -176,7 +180,7 @@ void loop() {
       );
       ot.sendRequest(request);
     } else {
-      Serial.println("Error: Invalid boiler response " + String(response, HEX));
+      Serial.println("Invalid boiler response: " + String(response, HEX));
     }
   }
 
