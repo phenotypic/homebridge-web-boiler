@@ -11,33 +11,30 @@
 // D6 = DHT11
 
 /////////////////// CHANGE THESE VALUES //////////////////////
-const char* ssid = "SSID"; //Name of your network
-const char* password = "PASSWORD"; //Password for your network
-const char* mdns = "boiler"; //mDNS name
-double Setpoint = 22; //Initial heating setpoint
-bool targetHeatingCoolingState = false; //Initial heating state
-bool dhwTargetState = true; //Initial DHW state
+const char* ssid = "SSID"; // Name of your network
+const char* password = "PASSWORD"; // Password for your network
+const char* mdns = "boiler"; // mDNS name
+double Setpoint = 22; // Initial heating setpoint
+bool targetHeatingCoolingState = false; // Initial heating state
+bool dhwTargetState = true; // Initial DHW state
 //////////////////////////////////////////////////////////////
-
-// DHT declarations
-#define DHTTYPE DHT11
-#define DHTPIN 12
-DHT dht(DHTPIN, DHTTYPE);
 
 // Pin declarations
 const int inPin = 4;
 const int outPin = 5;
+const int dhtPin = 12;
 
-// Specify the links and initial tuning parameters for PID
-double Kp = 10, Ki = 5, Kd = 8;
+DHT dht(dhtPin, DHT11);
+OpenTherm ot(inPin, outPin);
+
+// PID declarations
+const double Kp = 10, Ki = 5, Kd = 8;
 double MinTemp, MaxTemp, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
-// OpenTherm initial declarations
-bool enableCooling = false;
-unsigned long ts = 0, new_ts = 0;
-OpenTherm ot(inPin, outPin);
-unsigned long request, response;
+// OpenTherm declarations
+const bool enableCooling = false;
+unsigned long request, response, ts;
 
 // Variable declarations
 int currentHeatingCoolingState;
@@ -47,7 +44,7 @@ float dhwCurrentTemperature, dhwTargetTemperature, dhwHigh, dhwLow;
 
 WiFiServer server(80);
 
-//OT setup
+// OT setup
 void ICACHE_RAM_ATTR handleInterrupt() {
   ot.handleInterrupt();
 }
@@ -147,9 +144,8 @@ void loop() {
   relativeHumidity = dht.readHumidity();
 
   // Get and set boiler parameters
-  new_ts = millis();
-  if (new_ts - ts > 1000) {
-    ts = new_ts;
+  if (millis() - ts > 1000) {
+    ts = millis();
     if (targetHeatingCoolingState) {
       myPID.Compute();
       boilerTargetTemp = Output;
@@ -205,12 +201,12 @@ void loop() {
   Serial.println("Minimum Temperature: " + String(dhwLow));
   Serial.println("Maximum Temperature: " + String(dhwHigh));
   Serial.println("===========OTHER===========");
-  Serial.println("Boiler Target     : " + String(boilerTargetTemp));
-  Serial.println("Boiler Temperature: " + String(boilerCurrentTemp));
+  Serial.println("Boiler Target      : " + String(boilerTargetTemp));
+  Serial.println("Boiler Temperature : " + String(boilerCurrentTemp));
   Serial.println();
-  Serial.println("Requesting Cooling: " + String(enableCooling));
+  Serial.println("Requesting Cooling : " + String(enableCooling));
   Serial.println();
-  Serial.println("Relative Humidity : " + String(relativeHumidity));
+  Serial.println("Relative Humidity  : " + String(relativeHumidity));
   Serial.println("===========================");
 
   MDNS.update();
@@ -287,12 +283,12 @@ void loop() {
     client.println("Minimum Temperature: " + String(dhwLow));
     client.println("Maximum Temperature: " + String(dhwHigh));
     client.println("===========OTHER===========");
-    client.println("Boiler Target     : " + String(boilerTargetTemp));
-    client.println("Boiler Temperature: " + String(boilerCurrentTemp));
+    client.println("Boiler Target      : " + String(boilerTargetTemp));
+    client.println("Boiler Temperature : " + String(boilerCurrentTemp));
     client.println();
-    client.println("Requesting Cooling: " + String(enableCooling));
+    client.println("Requesting Cooling : " + String(enableCooling));
     client.println();
-    client.println("Relative Humidity : " + String(relativeHumidity));
+    client.println("Relative Humidity  : " + String(relativeHumidity));
     client.println("===========================");
   }
 
