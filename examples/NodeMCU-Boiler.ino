@@ -94,13 +94,11 @@ void setup() {
     OpenThermMessageID::MaxTSetUBMaxTSetLB,
     0x0000
   );
-  response = ot.sendRequest(request);
 
-  while (!ot.isValidResponse(response)) {
-    Serial.println("Invalid response, waiting 5 seconds to retry...");
+  do {
     delay(5000);
     response = ot.sendRequest(request);
-  }
+  } while (!ot.isValidResponse(response));
 
   MaxTemp = (response & 0xff00) >> 8;
   MinTemp = response & 0x00ff;
