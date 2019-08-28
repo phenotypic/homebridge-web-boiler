@@ -251,7 +251,7 @@ Boiler.prototype = {
       .setProps({
         minValue: this.chMin,
         maxValue: this.chMax,
-        minStep: 1
+        minStep: 0.5
       })
 
     var services = [this.informationService, this.chService]
