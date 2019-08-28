@@ -284,7 +284,7 @@ Boiler.prototype = {
         .setProps({
           minValue: this.dhwMin,
           maxValue: this.dhwMax,
-          minStep: 1
+          minStep: 0.5
         })
       services.push(this.dhwService)
     }
