@@ -16,6 +16,7 @@ const char* password = "PASSWORD"; // Password for your network
 const char* mdns = "boiler"; // mDNS name
 double Setpoint = 22; // Initial heating setpoint
 bool targetHeatingCoolingState = false; // Initial heating state
+float dhwTargetTemperature = 45; // Initial DHW setpoint
 bool dhwTargetState = true; // Initial DHW state
 //////////////////////////////////////////////////////////////
 
@@ -40,7 +41,7 @@ unsigned long request, response, ts;
 int currentHeatingCoolingState;
 float boilerCurrentTemp, boilerTargetTemp, ambientTemp, relativeHumidity;
 int dhwCurrentState;
-float dhwCurrentTemperature, dhwTargetTemperature, dhwHigh, dhwLow;
+float dhwCurrentTemperature, dhwHigh, dhwLow;
 
 WiFiServer server(80);
 
@@ -85,7 +86,6 @@ void setup() {
   Serial.println("mDNS address: " + String(mdns) + ".local");
 
   ts = millis();
-
   ot.begin(handleInterrupt);
 
   // Get central heating bounds
@@ -122,17 +122,6 @@ void setup() {
   Serial.println();
   Serial.println("DHW upper bound: " + String(dhwHigh));
   Serial.println("DHW lower bound: " + String(dhwLow));
-
-  // Get DHW set point
-  request = ot.buildRequest(
-    OpenThermRequestType::READ,
-    OpenThermMessageID::TdhwSet,
-    0x0000
-  );
-  response = ot.sendRequest(request);
-  dhwTargetTemperature = ot.getTemperature(response);
-  Serial.println();
-  Serial.println("DHW setpoint: " + String(dhwTargetTemperature));
 }
 
 void loop() {
