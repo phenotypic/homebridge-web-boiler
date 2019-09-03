@@ -230,24 +230,13 @@ Boiler.prototype = {
     this.chService
       .getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .on('set', this.setTargetHeatingCoolingState.bind(this))
-
-    this.chService
-      .getCharacteristic(Characteristic.TargetTemperature)
-      .on('set', this.setTargetTemperature.bind(this))
-
-    this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState)
       .setProps({
         maxValue: Characteristic.TargetHeatingCoolingState.HEAT
       })
 
-    this.chService.getCharacteristic(Characteristic.CurrentTemperature)
-      .setProps({
-        minValue: -100,
-        maxValue: 100,
-        minStep: 0.1
-      })
-
-    this.chService.getCharacteristic(Characteristic.TargetTemperature)
+    this.chService
+      .getCharacteristic(Characteristic.TargetTemperature)
+      .on('set', this.setTargetTemperature.bind(this))
       .setProps({
         minValue: this.chMin,
         maxValue: this.chMax,
@@ -263,29 +252,19 @@ Boiler.prototype = {
       this.dhwService
         .getCharacteristic(Characteristic.TargetHeatingCoolingState)
         .on('set', this.setDHWState.bind(this))
-
-      this.dhwService
-        .getCharacteristic(Characteristic.TargetTemperature)
-        .on('set', this.setDHWTemperature.bind(this))
-
-      this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState)
         .setProps({
           maxValue: Characteristic.TargetHeatingCoolingState.HEAT
         })
 
-      this.dhwService.getCharacteristic(Characteristic.CurrentTemperature)
-        .setProps({
-          minValue: -100,
-          maxValue: 100,
-          minStep: 0.1
-        })
-
-      this.dhwService.getCharacteristic(Characteristic.TargetTemperature)
+      this.dhwService
+        .getCharacteristic(Characteristic.TargetTemperature)
+        .on('set', this.setDHWTemperature.bind(this))
         .setProps({
           minValue: this.dhwMin,
           maxValue: this.dhwMax,
           minStep: 0.5
         })
+
       services.push(this.dhwService)
     }
 
