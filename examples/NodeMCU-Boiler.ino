@@ -176,6 +176,9 @@ void loop() {
   Serial.println("Target Temperature : " + String(Setpoint));
   Serial.println("Current Temperature: " + String(Input));
   Serial.println();
+  Serial.println("Boiler Target      : " + String(boilerTargetTemp));
+  Serial.println("Boiler Temperature : " + String(boilerCurrentTemp));
+  Serial.println();
   Serial.println("Minimum Temperature: " + String(MinTemp));
   Serial.println("Maximum Temperature: " + String(MaxTemp));
   Serial.println("============DHW============");
@@ -188,9 +191,6 @@ void loop() {
   Serial.println("Minimum Temperature: " + String(dhwLow));
   Serial.println("Maximum Temperature: " + String(dhwHigh));
   Serial.println("===========OTHER===========");
-  Serial.println("Boiler Target      : " + String(boilerTargetTemp));
-  Serial.println("Boiler Temperature : " + String(boilerCurrentTemp));
-  Serial.println();
   Serial.println("Requesting Cooling : " + String(enableCooling));
   Serial.println();
   Serial.println("Relative Humidity  : " + String(relativeHumidity));
@@ -258,6 +258,9 @@ void loop() {
     client.println("Target Temperature : " + String(Setpoint));
     client.println("Current Temperature: " + String(Input));
     client.println();
+    client.println("Boiler Target      : " + String(boilerTargetTemp));
+    client.println("Boiler Temperature : " + String(boilerCurrentTemp));
+    client.println();
     client.println("Minimum Temperature: " + String(MinTemp));
     client.println("Maximum Temperature: " + String(MaxTemp));
     client.println("============DHW============");
@@ -270,9 +273,6 @@ void loop() {
     client.println("Minimum Temperature: " + String(dhwLow));
     client.println("Maximum Temperature: " + String(dhwHigh));
     client.println("===========OTHER===========");
-    client.println("Boiler Target      : " + String(boilerTargetTemp));
-    client.println("Boiler Temperature : " + String(boilerCurrentTemp));
-    client.println();
     client.println("Requesting Cooling : " + String(enableCooling));
     client.println();
     client.println("Relative Humidity  : " + String(relativeHumidity));
