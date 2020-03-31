@@ -172,6 +172,7 @@ Boiler.prototype = {
   },
 
   setTargetTemperature: function (value, callback) {
+    value = value.toFixed(1)
     var url = this.apiroute + '/targetTemperature/' + value
     this.log.debug('CH | Setting targetTemperature: %s', url)
 
@@ -202,6 +203,7 @@ Boiler.prototype = {
   },
 
   setDHWTemperature: function (value, callback) {
+    value = value.toFixed(1)
     var url = this.apiroute + '/dhwTargetTemperature/' + value
     this.log.debug('DHW | Setting targetTemperature: %s', url)
 
