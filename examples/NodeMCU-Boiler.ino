@@ -14,9 +14,9 @@
 const char* ssid = "SSID"; // Name of your network
 const char* password = "PASSWORD"; // Password for your network
 const char* mdns = "boiler"; // mDNS name
-double Setpoint = 22; // Initial heating setpoint
+double Setpoint = 22.0; // Initial heating setpoint
 bool targetHeatingCoolingState = false; // Initial heating state
-float dhwTargetTemperature = 45; // Initial DHW setpoint
+float dhwTargetTemperature = 45.0; // Initial DHW setpoint
 bool dhwTargetState = true; // Initial DHW state
 //////////////////////////////////////////////////////////////
 
@@ -225,7 +225,7 @@ void loop() {
   }
 
   if (request.indexOf("/targetTemperature") != -1) {
-    Setpoint = request.substring(23, 25).toFloat();
+    Setpoint = request.substring(23, 27).toFloat();
   }
 
   if (request.indexOf("/dhwTargetState") != -1) {
@@ -233,7 +233,7 @@ void loop() {
   }
 
   if (request.indexOf("/dhwTargetTemperature") != -1) {
-    dhwTargetTemperature = request.substring(26, 28).toFloat();
+    dhwTargetTemperature = request.substring(26, 30).toFloat();
   }
 
   if (request.indexOf("/status") != -1) {
