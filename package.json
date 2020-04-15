@@ -1,6 +1,6 @@
 {
   "name": "homebridge-web-boiler",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "Homebridge plugin for a web-based boiler",
   "main": "index.js",
   "dependencies": {
