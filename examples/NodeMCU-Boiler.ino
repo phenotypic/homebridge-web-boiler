@@ -3,6 +3,7 @@
 #include <OpenTherm.h>
 #include <DHT.h>
 #include <PID_v1.h>
+#include <PID_AutoTune_v0.h>
 
 // GitHub Page = https://github.com/Tommrodrigues/homebridge-web-boiler
 
@@ -18,6 +19,7 @@ double Setpoint = 22.0; // Initial heating setpoint
 bool targetHeatingCoolingState = false; // Initial heating state
 float dhwTargetTemperature = 45.0; // Initial DHW setpoint
 bool dhwTargetState = true; // Initial DHW state
+double Kp = 35, Ki = 0.01, Kd = 0; // Heating PID tunings
 //////////////////////////////////////////////////////////////
 
 // Pin declarations
@@ -29,9 +31,15 @@ DHT dht(dhtPin, DHT11);
 OpenTherm ot(inPin, outPin);
 
 // PID declarations
-const double Kp = 10, Ki = 5, Kd = 8;
 double MinTemp, MaxTemp, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+
+// PID tuning declarations
+double aTuneStep, aTuneStartValue;
+const int aTuneLookBack = 30;
+const double aTuneNoise = 0.1;
+bool tuningState = false;
+PID_ATune aTune(&Input, &Output);
 
 // OpenTherm declarations
 const bool enableCooling = false;
@@ -110,6 +118,12 @@ void setup() {
   myPID.SetMode(AUTOMATIC);
   myPID.SetOutputLimits(MinTemp, MaxTemp);
 
+  aTuneStep = (MaxTemp - MinTemp) / 2;
+
+  aTune.SetNoiseBand(aTuneNoise);
+  aTune.SetOutputStep(aTuneStep);
+  aTune.SetLookbackSec(aTuneLookBack);
+
   // Get domestic hot water bounds
   request = ot.buildRequest(
     OpenThermRequestType::READ,
@@ -134,11 +148,27 @@ void loop() {
   if (millis() - ts > 1000) {
     ts = millis();
     if (targetHeatingCoolingState) {
-      myPID.Compute();
+      if (tuningState) {
+        byte val = (aTune.Runtime());
+        if (val != 0) {
+          tuningState = false;
+        }
+        if(!tuningState) {
+          Kp = aTune.GetKp();
+          Ki = aTune.GetKi();
+          Kd = aTune.GetKd();
+          myPID.SetTunings(Kp, Ki, Kd);
+        }
+      } else {
+        myPID.Compute();
+      }
       boilerTargetTemp = Output;
     } else {
       boilerTargetTemp = MinTemp;
+      aTune.Cancel();
+      tuningState = false;
     }
+
     response = ot.setBoilerStatus(targetHeatingCoolingState, dhwTargetState, enableCooling);
     if (ot.isValidResponse(response)) {
       currentHeatingCoolingState = ot.isCentralHeatingActive(response);
@@ -194,6 +224,12 @@ void loop() {
   Serial.println("Requesting Cooling : " + String(enableCooling));
   Serial.println();
   Serial.println("Relative Humidity  : " + String(relativeHumidity));
+  Serial.println("===========TUNE============");
+  Serial.println("Tuning state       : " + String(tuningState));
+  Serial.println();
+  Serial.println("Kp                 : " + String(myPID.GetKp()));
+  Serial.println("Ki                 : " + String(myPID.GetKi()));
+  Serial.println("Kd                 : " + String(myPID.GetKd()));
   Serial.println("===========================");
 
   MDNS.update();
@@ -236,6 +272,15 @@ void loop() {
     dhwTargetTemperature = request.substring(26, 30).toFloat();
   }
 
+  if (request.indexOf("/tuningState") != -1) {
+    tuningState = request.substring(17, 18).toInt();
+    if (tuningState) {
+      Output = MaxTemp;
+    } else {
+      aTune.Cancel();
+    }
+  }
+
   if (request.indexOf("/status") != -1) {
     client.println("{\"targetHeatingCoolingState\": " + String(targetHeatingCoolingState) + ",");
     client.println("\"currentHeatingCoolingState\": " + String(currentHeatingCoolingState) + ",");
@@ -245,7 +290,13 @@ void loop() {
     client.println("\"dhwCurrentState\": " + String(dhwCurrentState) + ",");
     client.println("\"dhwTargetTemperature\": " + String(dhwTargetTemperature) + ",");
     client.println("\"dhwCurrentTemperature\": " + String(dhwCurrentTemperature) + ",");
-    client.println("\"currentRelativeHumidity\": " + String(relativeHumidity) + "}");
+    client.println("\"currentRelativeHumidity\": " + String(relativeHumidity) + ",");
+    client.println("\"boilerTargetTemp\": " + String(boilerTargetTemp) + ",");
+    client.println("\"boilerCurrentTemp\": " + String(boilerCurrentTemp) + ",");
+    client.println("\"tuningState\": " + String(tuningState) + ",");
+    client.println("\"Kp\": " + String(myPID.GetKp()) + ",");
+    client.println("\"Ki\": " + String(myPID.GetKi()) + ",");
+    client.println("\"Kd\": " + String(myPID.GetKd()) + "}");
   }
 
   if (request.indexOf("/diag") != -1) {
@@ -274,6 +325,12 @@ void loop() {
     client.println("Requesting Cooling : " + String(enableCooling));
     client.println();
     client.println("Relative Humidity  : " + String(relativeHumidity));
+    client.println("===========TUNE============");
+    client.println("Tuning state       : " + String(tuningState));
+    client.println();
+    client.println("Kp                 : " + String(myPID.GetKp()));
+    client.println("Ki                 : " + String(myPID.GetKi()));
+    client.println("Kd                 : " + String(myPID.GetKd()));
     client.println("===========================");
   }
 
