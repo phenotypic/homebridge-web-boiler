@@ -19,7 +19,7 @@ double Setpoint = 22.0; // Initial heating setpoint
 bool targetHeatingCoolingState = false; // Initial heating state
 float dhwTargetTemperature = 45.0; // Initial DHW setpoint
 bool dhwTargetState = true; // Initial DHW state
-double Kp = 35, Ki = 0.01, Kd = 0; // Heating PID tunings
+double Kp = 35, Ki = 0.15, Kd = 0; // Heating PID tunings
 //////////////////////////////////////////////////////////////
 
 // Pin declarations
