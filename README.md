@@ -55,8 +55,6 @@ Find script samples for the boiler controller in the _examples_ folder.
 | `timeout` | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
 | `port` | Port for your HTTP listener (if enabled) | `2000` |
 | `http_method` | HTTP method used to communicate with the device | `GET` |
-| `username` | Username if HTTP authentication is enabled | N/A |
-| `password` | Password if HTTP authentication is enabled | N/A |
 | `model` | Appears under the _Model_ field for the accessory | plugin |
 | `serial` | Appears under the _Serial_ field for the accessory | apiroute |
 | `manufacturer` | Appears under the _Manufacturer_ field for the accessory | author |
