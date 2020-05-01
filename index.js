@@ -15,6 +15,7 @@ function Boiler (log, config) {
 
   this.name = config.name
   this.apiroute = config.apiroute
+  this.requestKey = config.requestKey
   this.pollInterval = config.pollInterval || 300
 
   this.listener = config.listener || false
@@ -26,8 +27,6 @@ function Boiler (log, config) {
   this.model = config.model || packageJson.name
   this.firmware = config.firmware || packageJson.version
 
-  this.username = config.username || null
-  this.password = config.password || null
   this.timeout = config.timeout || 3000
   this.http_method = config.http_method || 'GET'
 
@@ -41,13 +40,6 @@ function Boiler (log, config) {
   this.dhwName = config.dhwName || 'Hot Water'
   this.dhwMin = config.dhwMin || 40
   this.dhwMax = config.dhwMax || 50
-
-  if (this.username != null && this.password != null) {
-    this.auth = {
-      user: this.username,
-      pass: this.password
-    }
-  }
 
   if (this.listener) {
     this.server = http.createServer(function (request, response) {
@@ -79,12 +71,11 @@ Boiler.prototype = {
 
   _httpRequest: function (url, body, method, callback) {
     request({
-      url: url,
+      url: url + '&requestKey=' + this.requestKey,
       body: body,
       method: this.http_method,
       timeout: this.timeout,
-      rejectUnauthorized: false,
-      auth: this.auth
+      rejectUnauthorized: false
     },
     function (error, response, body) {
       callback(error, response, body)
@@ -157,7 +148,7 @@ Boiler.prototype = {
   },
 
   setTargetHeatingCoolingState: function (value, callback) {
-    var url = this.apiroute + '/targetHeatingCoolingState/' + value
+    var url = this.apiroute + '/targetHeatingCoolingState?value=' + value
     this.log.debug('CH | Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -173,7 +164,7 @@ Boiler.prototype = {
 
   setTargetTemperature: function (value, callback) {
     value = value.toFixed(1)
-    var url = this.apiroute + '/targetTemperature/' + value
+    var url = this.apiroute + '/targetTemperature?value=' + value
     this.log.debug('CH | Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -188,7 +179,7 @@ Boiler.prototype = {
   },
 
   setDHWState: function (value, callback) {
-    var url = this.apiroute + '/dhwTargetState/' + value
+    var url = this.apiroute + '/dhwTargetState?value=' + value
     this.log.debug('DHW | Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -204,7 +195,7 @@ Boiler.prototype = {
 
   setDHWTemperature: function (value, callback) {
     value = value.toFixed(1)
-    var url = this.apiroute + '/dhwTargetTemperature/' + value
+    var url = this.apiroute + '/dhwTargetTemperature?value=' + value
     this.log.debug('DHW | Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
