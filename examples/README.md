@@ -34,7 +34,8 @@ npm install -g homebridge-web-boiler
     {
        "accessory": "Boiler",
        "name": "Boiler",
-       "apiroute": "https://boiler.local",
+       "apiroute": "https://myurl.com",
+       "requestKey": "password",
        "currentRelativeHumidity": true,
        "dhw": true
     }
