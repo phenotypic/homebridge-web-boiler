@@ -21,7 +21,8 @@ Find script samples for the boiler controller in the _examples_ folder.
      {
        "accessory": "Boiler",
        "name": "Thermostat",
-       "apiroute": "http://myurl.com"
+       "apiroute": "http://myurl.com",
+       "requestKey": "password"
      }
 ]
 ```
@@ -32,6 +33,7 @@ Find script samples for the boiler controller in the _examples_ folder.
 | `accessory` | Must be `Boiler` | N/A |
 | `name` | Name to appear in the Home app | N/A |
 | `apiroute` | Root URL of your device | N/A |
+| `requestKey` | Password for secure requests | N/A |
 
 ### Optional fields
 | Key | Description | Default |
