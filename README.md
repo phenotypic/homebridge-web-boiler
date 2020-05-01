@@ -21,7 +21,7 @@ Find script samples for the boiler controller in the _examples_ folder.
      {
        "accessory": "Boiler",
        "name": "Thermostat",
-       "apiroute": "http://myurl.com",
+       "apiroute": "https://myurl.com",
        "requestKey": "password"
      }
 ]
