@@ -26,7 +26,7 @@ bool dhwTargetState = true; // Initial DHW state
 double Kp = 32, Ki = 3, Kd = 1; // Heating PID tunings
 //////////////////////////////////////////////////////////////
 
-BearSSL::ESP8266WebServerSecure server(443);
+BearSSL::ESP8266WebServerSecure server(80);
 
 static const char serverCert[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
