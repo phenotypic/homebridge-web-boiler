@@ -1,8 +1,5 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServerSecure.h>
 #include <ESP8266mDNS.h>
-#include <ArduinoJson.h>
 #include <OpenTherm.h>
 #include <DHT.h>
 #include <PID_v1.h>
@@ -18,27 +15,12 @@
 const char* ssid = "SSID"; // Name of your network
 const char* password = "PASSWORD"; // Password for your network
 const char* mdns = "boiler"; // mDNS name
-const char* requestKey = "passsword"; // Request key
 double Setpoint = 22.0; // Initial heating setpoint
 bool targetHeatingCoolingState = false; // Initial heating state
 float dhwTargetTemperature = 45.0; // Initial DHW setpoint
 bool dhwTargetState = true; // Initial DHW state
 double Kp = 32, Ki = 3, Kd = 1; // Heating PID tunings
 //////////////////////////////////////////////////////////////
-
-BearSSL::ESP8266WebServerSecure server(80);
-
-static const char serverCert[] PROGMEM = R"EOF(
------BEGIN CERTIFICATE-----
-
------END CERTIFICATE-----
-)EOF";
-
-static const char serverKey[] PROGMEM =  R"EOF(
------BEGIN RSA PRIVATE KEY-----
-
------END RSA PRIVATE KEY-----
-)EOF";
 
 // Pin declarations
 const int inPin = 4;
@@ -69,99 +51,47 @@ float boilerCurrentTemp, boilerTargetTemp, ambientTemp, relativeHumidity;
 int dhwCurrentState;
 float dhwCurrentTemperature, dhwHigh, dhwLow;
 
+WiFiServer server(80);
+
 // OT setup
 void ICACHE_RAM_ATTR handleInterrupt() {
   ot.handleInterrupt();
 }
 
-void setup(void){
+void setup() {
+
   Serial.begin(115200);
+  delay(10);
+
+  dht.begin();
+
+  // Connect to WiFi network
+  Serial.println();
+  Serial.println();
+  Serial.println("Connecting to \"" + String(ssid) + "\"");
+
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
-  // Wait for connection
+  int i = 0;
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+    delay(1000);
+    Serial.print(String(++i) + " ");
   }
+  Serial.println();
+  Serial.println("Connected successfully");
 
-  configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  // Start the server
+  server.begin();
 
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
+  // Print the IP address
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  if (MDNS.begin(mdns)) {
-    Serial.println("MDNS responder started");
+  if (!MDNS.begin(mdns)) {
+    Serial.println("Error setting up MDNS responder!");
   }
-
-  server.setRSACert(new BearSSL::X509List(serverCert), new BearSSL::PrivateKey(serverKey));
-
-  server.on("/status", [](){
-    if (server.arg("requestKey") == requestKey) {
-      const size_t capacity = JSON_OBJECT_SIZE(15);
-      DynamicJsonDocument doc(capacity);
-      doc["targetHeatingCoolingState"] = targetHeatingCoolingState;
-      doc["currentHeatingCoolingState"] = currentHeatingCoolingState;
-      doc["targetTemperature"] = Setpoint;
-      doc["currentTemperature"] = Input;
-      doc["dhwTargetState"] = dhwTargetState;
-      doc["dhwCurrentState"] = dhwCurrentState;
-      doc["dhwTargetTemperature"] = dhwTargetTemperature;
-      doc["dhwCurrentTemperature"] = dhwCurrentTemperature;
-      doc["currentRelativeHumidity"] = relativeHumidity;
-      doc["boilerTargetTemp"] = boilerTargetTemp;
-      doc["boilerCurrentTemp"] = boilerCurrentTemp;
-      doc["tuningState"] = tuningState;
-      doc["Kp"] = myPID.GetKp();
-      doc["Ki"] = myPID.GetKi();
-      doc["Kd"] = myPID.GetKd();
-      String json;
-      serializeJson(doc, json);
-      server.send(200, "text/plain", json);
-    } else {
-      server.send(200);
-    }
-  });
-
-  server.on("/targetHeatingCoolingState", [](){
-    if (server.arg("requestKey") == requestKey) {
-      targetHeatingCoolingState = server.arg("value").toInt();
-    }
-    server.send(200);
-  });
-
-  server.on("/targetTemperature", [](){
-    if (server.arg("requestKey") == requestKey) {
-      Setpoint = server.arg("value").toFloat();
-    }
-    server.send(200);
-  });
-
-  server.on("/dhwTargetState", [](){
-    if (server.arg("requestKey") == requestKey) {
-      dhwTargetState = server.arg("value").toInt();
-    }
-    server.send(200);
-  });
-
-  server.on("/tuningState", [](){
-    if (server.arg("requestKey") == requestKey) {
-      tuningState = server.arg("value").toInt();
-      if (tuningState) {
-        Output = MaxTemp;
-      } else {
-        aTune.Cancel();
-      }
-    }
-    server.send(200);
-  });
-
-  server.begin();
-  Serial.println("HTTPS server started");
-
-  dht.begin();
+  Serial.println("mDNS address: " + String(mdns) + ".local");
 
   ts = millis();
   ot.begin(handleInterrupt);
@@ -181,6 +111,10 @@ void setup(void){
   MaxTemp = (response & 0xff00) >> 8;
   MinTemp = response & 0x00ff;
 
+  Serial.println();
+  Serial.println("Heating upper bound: " + String(MaxTemp));
+  Serial.println("Heating lower bound: " + String(MinTemp));
+
   myPID.SetMode(AUTOMATIC);
   myPID.SetOutputLimits(MinTemp, MaxTemp);
 
@@ -199,9 +133,13 @@ void setup(void){
   response = ot.sendRequest(request);
   dhwHigh = (response & 0xff00) >> 8;
   dhwLow = response & 0x00ff;
+  Serial.println();
+  Serial.println("DHW upper bound: " + String(dhwHigh));
+  Serial.println("DHW lower bound: " + String(dhwLow));
 }
 
-void loop(void){
+void loop() {
+
   // Get DHT11 data
   Input = dht.readTemperature();
   relativeHumidity = dht.readHumidity();
@@ -259,6 +197,145 @@ void loop(void){
     }
   }
 
-  server.handleClient();
+  Serial.println();
+  Serial.println();
+  Serial.println("==========HEATING==========");
+  Serial.println("Target State       : " + String(targetHeatingCoolingState));
+  Serial.println("Current State      : " + String(currentHeatingCoolingState));
+  Serial.println();
+  Serial.println("Target Temperature : " + String(Setpoint));
+  Serial.println("Current Temperature: " + String(Input));
+  Serial.println();
+  Serial.println("Minimum Temperature: " + String(MinTemp));
+  Serial.println("Maximum Temperature: " + String(MaxTemp));
+  Serial.println("============DHW============");
+  Serial.println("Target State       : " + String(dhwTargetState));
+  Serial.println("Current State      : " + String(dhwCurrentState));
+  Serial.println();
+  Serial.println("Target Temperature : " + String(dhwTargetTemperature));
+  Serial.println("Current Temperature: " + String(dhwCurrentTemperature));
+  Serial.println();
+  Serial.println("Minimum Temperature: " + String(dhwLow));
+  Serial.println("Maximum Temperature: " + String(dhwHigh));
+  Serial.println("===========OTHER===========");
+  Serial.println("Boiler Target      : " + String(boilerTargetTemp));
+  Serial.println("Boiler Temperature : " + String(boilerCurrentTemp));
+  Serial.println();
+  Serial.println("Requesting Cooling : " + String(enableCooling));
+  Serial.println();
+  Serial.println("Relative Humidity  : " + String(relativeHumidity));
+  Serial.println("===========TUNE============");
+  Serial.println("Tuning state       : " + String(tuningState));
+  Serial.println();
+  Serial.println("Kp                 : " + String(myPID.GetKp()));
+  Serial.println("Ki                 : " + String(myPID.GetKi()));
+  Serial.println("Kd                 : " + String(myPID.GetKd()));
+  Serial.println("===========================");
+
   MDNS.update();
+
+  // Check if a client has connected
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+
+  // Wait until the client sends some data
+  Serial.println("New client");
+  while (!client.available()) {
+    delay(1);
+  }
+
+  // Read the first line of the request
+  String request = client.readStringUntil('\r');
+  Serial.println(request);
+  client.flush();
+
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println();
+
+  // Match the request
+  if (request.indexOf("/targetHeatingCoolingState") != -1) {
+    targetHeatingCoolingState = request.substring(31, 32).toInt();
+  }
+
+  if (request.indexOf("/targetTemperature") != -1) {
+    Setpoint = request.substring(23, 27).toFloat();
+  }
+
+  if (request.indexOf("/dhwTargetState") != -1) {
+    dhwTargetState = request.substring(20, 21).toInt();
+  }
+
+  if (request.indexOf("/dhwTargetTemperature") != -1) {
+    dhwTargetTemperature = request.substring(26, 30).toFloat();
+  }
+
+  if (request.indexOf("/tuningState") != -1) {
+    tuningState = request.substring(17, 18).toInt();
+    if (tuningState) {
+      Output = MaxTemp;
+    } else {
+      aTune.Cancel();
+    }
+  }
+
+  if (request.indexOf("/status") != -1) {
+    client.println("{\"targetHeatingCoolingState\": " + String(targetHeatingCoolingState) + ",");
+    client.println("\"currentHeatingCoolingState\": " + String(currentHeatingCoolingState) + ",");
+    client.println("\"targetTemperature\": " + String(Setpoint) + ",");
+    client.println("\"currentTemperature\": " + String(Input) + ",");
+    client.println("\"dhwTargetState\": " + String(dhwTargetState) + ",");
+    client.println("\"dhwCurrentState\": " + String(dhwCurrentState) + ",");
+    client.println("\"dhwTargetTemperature\": " + String(dhwTargetTemperature) + ",");
+    client.println("\"dhwCurrentTemperature\": " + String(dhwCurrentTemperature) + ",");
+    client.println("\"currentRelativeHumidity\": " + String(relativeHumidity) + ",");
+    client.println("\"boilerTargetTemp\": " + String(boilerTargetTemp) + ",");
+    client.println("\"boilerCurrentTemp\": " + String(boilerCurrentTemp) + ",");
+    client.println("\"tuningState\": " + String(tuningState) + ",");
+    client.println("\"Kp\": " + String(myPID.GetKp()) + ",");
+    client.println("\"Ki\": " + String(myPID.GetKi()) + ",");
+    client.println("\"Kd\": " + String(myPID.GetKd()) + "}");
+  }
+
+  if (request.indexOf("/diag") != -1) {
+    client.println("==========HEATING==========");
+    client.println("Target State       : " + String(targetHeatingCoolingState));
+    client.println("Current State      : " + String(currentHeatingCoolingState));
+    client.println();
+    client.println("Target Temperature : " + String(Setpoint));
+    client.println("Current Temperature: " + String(Input));
+    client.println();
+    client.println("Minimum Temperature: " + String(MinTemp));
+    client.println("Maximum Temperature: " + String(MaxTemp));
+    client.println("============DHW============");
+    client.println("Target State       : " + String(dhwTargetState));
+    client.println("Current State      : " + String(dhwCurrentState));
+    client.println();
+    client.println("Target Temperature : " + String(dhwTargetTemperature));
+    client.println("Current Temperature: " + String(dhwCurrentTemperature));
+    client.println();
+    client.println("Minimum Temperature: " + String(dhwLow));
+    client.println("Maximum Temperature: " + String(dhwHigh));
+    client.println("===========OTHER===========");
+    client.println("Boiler Target      : " + String(boilerTargetTemp));
+    client.println("Boiler Temperature : " + String(boilerCurrentTemp));
+    client.println();
+    client.println("Requesting Cooling : " + String(enableCooling));
+    client.println();
+    client.println("Relative Humidity  : " + String(relativeHumidity));
+    client.println("===========TUNE============");
+    client.println("Tuning state       : " + String(tuningState));
+    client.println();
+    client.println("Kp                 : " + String(myPID.GetKp()));
+    client.println("Ki                 : " + String(myPID.GetKi()));
+    client.println("Kd                 : " + String(myPID.GetKd()));
+    client.println("===========================");
+  }
+
+  delay(1);
+  Serial.println("Client disconnected");
+  Serial.println();
+
 }

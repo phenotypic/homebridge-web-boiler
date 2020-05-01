@@ -14,8 +14,6 @@ This script is designed to interface with the plugin to expose an [OpenTherm](ht
 
 * Micro-USB cable
 
-* [SSL key and certificate](https://www.selfsignedcertificate.com)
-
 ## How-to
 
 1. First, install the `PID`, `OpenTherm Library`, and `PID AutoTune` libraries from the _Library manager_ in the Arduino IDE, then follow [this](https://gist.github.com/Tommrodrigues/8d9d3b886936ccea9c21f495755640dd) gist which walks you through how to flash a NodeMCU. The `.ino` file referred to in the gist is the `NodeMCU-Boiler.ino` file included in this repository - only seems to work reliably with `esp8266` library `<=2.5.1`
@@ -34,8 +32,7 @@ npm install -g homebridge-web-boiler
     {
        "accessory": "Boiler",
        "name": "Boiler",
-       "apiroute": "https://myurl.com",
-       "requestKey": "password",
+       "apiroute": "http://boiler.local",
        "currentRelativeHumidity": true,
        "dhw": true
     }

@@ -21,8 +21,7 @@ Find script samples for the boiler controller in the _examples_ folder.
      {
        "accessory": "Boiler",
        "name": "Thermostat",
-       "apiroute": "https://myurl.com",
-       "requestKey": "password"
+       "apiroute": "http://myurl.com"
      }
 ]
 ```
@@ -33,7 +32,6 @@ Find script samples for the boiler controller in the _examples_ folder.
 | `accessory` | Must be `Boiler` | N/A |
 | `name` | Name to appear in the Home app | N/A |
 | `apiroute` | Root URL of your device | N/A |
-| `requestKey` | Password for secure requests | N/A |
 
 ### Optional fields
 | Key | Description | Default |
@@ -55,6 +53,8 @@ Find script samples for the boiler controller in the _examples_ folder.
 | `timeout` | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
 | `port` | Port for your HTTP listener (if enabled) | `2000` |
 | `http_method` | HTTP method used to communicate with the device | `GET` |
+| `username` | Username if HTTP authentication is enabled | N/A |
+| `password` | Password if HTTP authentication is enabled | N/A |
 | `model` | Appears under the _Model_ field for the accessory | plugin |
 | `serial` | Appears under the _Serial_ field for the accessory | apiroute |
 | `manufacturer` | Appears under the _Manufacturer_ field for the accessory | author |
