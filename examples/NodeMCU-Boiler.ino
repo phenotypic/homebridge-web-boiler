@@ -234,6 +234,7 @@ void setup() {
 
 void loop() {
 
+  server.handleClient();
   MDNS.update();
 
   // Get DHT11 data
