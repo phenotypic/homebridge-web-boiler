@@ -92,42 +92,42 @@ Your API should be able to:
 
 2. Set `targetHeatingCoolingState` when it receives:
 ```
-/targetHeatingCoolingState/INT_VALUE
+/targetHeatingCoolingState?value=INT_VALUE
 ```
 
 3. Set `targetTemperature` when it receives:
 ```
-/targetTemperature/FLOAT_VALUE
+/targetTemperature?value=FLOAT_VALUE
 ```
 
 4. Set `dhwTargetState` when it receives: (if `dhw` is enabled)
 ```
-/dhwTargetState/INT_VALUE
+/dhwTargetState?value=INT_VALUE
 ```
 
 5. Set `dhwTargetTemperature` when it receives: (if `dhw` is enabled)
 ```
-/dhwTargetTemperature/FLOAT_VALUE
+/dhwTargetTemperature?value=FLOAT_VALUE
 ```
 
 ### Optional (if listener is enabled)
 
 1. Update `targetHeatingCoolingState` following a manual override by messaging the listen server:
 ```
-/targetHeatingCoolingState/INT_VALUE
+/targetHeatingCoolingState?value=INT_VALUE
 ```
 
 2. Update `targetTemperature` following a manual override by messaging the listen server:
 ```
-/targetTemperature/FLOAT_VALUE
+/targetTemperature?value=FLOAT_VALUE
 ```
 
 3. Update `dhwTargetState` following a manual override by messaging the listen server: (if `dhw` is enabled)
 ```
-/dhwTargetState/INT_VALUE
+/dhwTargetState?value=INT_VALUE
 ```
 
 4. Update `dhwTargetTemperature` following a manual override by messaging the listen server: (if `dhw` is enabled)
 ```
-/dhwTargetTemperature/FLOAT_VALUE
+/dhwTargetTemperature?value=FLOAT_VALUE
 ```
