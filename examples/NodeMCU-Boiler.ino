@@ -117,7 +117,7 @@ void setup() {
   });
 
   server.on("/diag", []() {
-    String message = "\n==========HEATING==========";
+    String message = "==========HEATING==========";
     message += "\nTarget State       : " + String(targetHeatingCoolingState);
     message += "\nCurrent State      : " + String(currentHeatingCoolingState);
 
@@ -148,7 +148,7 @@ void setup() {
     message += "\n\nKp                 : " + String(myPID.GetKp());
     message += "\nKi                 : " + String(myPID.GetKi());
     message += "\nKd                 : " + String(myPID.GetKd());
-    message += "\n===========================";
+    message += "\n===========================\n";
     server.send(200, "text/plain", message);
   });
 
