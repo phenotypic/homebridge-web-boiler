@@ -46,6 +46,7 @@ Find script samples for the boiler controller in the _examples_ folder.
 | --- | --- | --- |
 | `temperatureDisplayUnits` | Whether you want °C (`0`) or °F (`1`) as your units | `0` |
 | `currentRelativeHumidity` | Whether to include `currentRelativeHumidity` as a field in `/status` | `false` |
+| `minStep` | Minimum increment value for the temperature selector in the Home app | `0.5` |
 | `chMin` | Lower bound for the temperature selector in the Home app | `15` |
 | `chMax` | Upper bound for the temperature selector in the Home app | `30` |
 | `dhw` | Whether you want to expose hot water control as an extra accessory | `false` |

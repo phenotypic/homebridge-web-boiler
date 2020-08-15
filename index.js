@@ -32,6 +32,7 @@ function Boiler (log, config) {
   this.http_method = config.http_method || 'GET'
 
   this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0
+  this.minStep = config.minStep || 0.5
 
   this.currentRelativeHumidity = config.currentRelativeHumidity || false
   this.chMin = config.chMin || 15
@@ -241,7 +242,7 @@ Boiler.prototype = {
       .setProps({
         minValue: this.chMin,
         maxValue: this.chMax,
-        minStep: 0.5
+        minStep: this.minStep
       })
 
     var services = [this.informationService, this.chService]
@@ -263,7 +264,7 @@ Boiler.prototype = {
         .setProps({
           minValue: this.dhwMin,
           maxValue: this.dhwMax,
-          minStep: 0.5
+          minStep: this.minStep
         })
 
       services.push(this.dhwService)
