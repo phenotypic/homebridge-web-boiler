@@ -280,7 +280,7 @@ void loop() {
         0x0000
       );
       response = ot.sendRequest(request);
-      dhwCurrentTemperature = ot.getTemperature(response);
+      dhwCurrentTemperature = ot.getFloat(response);
       // Set DHW temperature
       unsigned int data = ot.temperatureToData(dhwTargetTemperature);
       request = ot.buildRequest(
