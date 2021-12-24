@@ -16,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tommrodrigues/homebridge-web-boiler.git"
+    "url": "git+https://github.com/phenotypic/homebridge-web-boiler.git"
   },
   "keywords": [
     "homebridge-plugin"
   ],
-  "author": "Tom Rodrigues",
+  "author": "phenotypic",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Tommrodrigues/homebridge-web-boiler/issues"
+    "url": "https://github.com/phenotypic/homebridge-web-boiler/issues"
   },
-  "homepage": "https://github.com/Tommrodrigues/homebridge-web-boiler#readme"
+  "homepage": "https://github.com/phenotypic/homebridge-web-boiler#readme"
 }

@@ -8,7 +8,7 @@
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
 
-// GitHub Page = https://github.com/Tommrodrigues/homebridge-web-boiler
+// GitHub Page = https://github.com/phenotypic/homebridge-web-boiler
 
 // D2 = INPUT
 // D1 = OUTPUT
