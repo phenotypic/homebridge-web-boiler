@@ -20,7 +20,7 @@ This script is designed to interface with the plugin to expose an [OpenTherm](ht
 
 2. Build [this circuit](http://ihormelnyk.com/arduino_opentherm_controller) in order to be able to interface the NodeMCU with the appliance
 
-3. Assuming that you already have [homebridge](https://github.com/nfarina/homebridge#installation) set up, the next thing you will have to do is install the plugin:
+3. Assuming that you already have [homebridge](https://github.com/homebridge/homebridge#installation) set up, the next thing you will have to do is install the plugin:
 ```
 npm install -g homebridge-web-boiler
 ```
