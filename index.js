@@ -21,7 +21,7 @@ function Boiler (log, config) {
   this.port = config.port || 2000
   this.requestArray = ['targetHeatingCoolingState', 'targetTemperature', 'dhwTargetState', 'dhwTargetTemperature']
 
-  this.manufacturer = config.manufacturer || packageJson.author.name
+  this.manufacturer = config.manufacturer || packageJson.author
   this.serial = config.serial || this.apiroute
   this.model = config.model || packageJson.name
   this.firmware = config.firmware || packageJson.version
