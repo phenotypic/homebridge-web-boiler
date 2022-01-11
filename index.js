@@ -105,30 +105,34 @@ Boiler.prototype = {
         callback(error)
       } else {
         this.log.debug('Device response: %s', responseBody)
-        var json = JSON.parse(responseBody)
-        this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
-        this.log.debug('CH | Updated TargetTemperature to: %s', json.targetTemperature)
-        this.chService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
-        this.log.debug('CH | Updated CurrentTemperature to: %s', json.currentTemperature)
-        this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.targetHeatingCoolingState)
-        this.log.debug('CH | Updated TargetHeatingCoolingState to: %s', json.targetHeatingCoolingState)
-        this.chService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.currentHeatingCoolingState)
-        this.log.debug('CH | Updated CurrentHeatingCoolingState to: %s', json.currentHeatingCoolingState)
-        if (this.currentRelativeHumidity) {
-          this.chService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(json.currentRelativeHumidity)
-          this.log.debug('CH | Updated CurrentRelativeHumidity to: %s', json.currentRelativeHumidity)
+        try {
+          var json = JSON.parse(responseBody)
+          this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
+          this.log.debug('CH | Updated TargetTemperature to: %s', json.targetTemperature)
+          this.chService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
+          this.log.debug('CH | Updated CurrentTemperature to: %s', json.currentTemperature)
+          this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.targetHeatingCoolingState)
+          this.log.debug('CH | Updated TargetHeatingCoolingState to: %s', json.targetHeatingCoolingState)
+          this.chService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.currentHeatingCoolingState)
+          this.log.debug('CH | Updated CurrentHeatingCoolingState to: %s', json.currentHeatingCoolingState)
+          if (this.currentRelativeHumidity) {
+            this.chService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(json.currentRelativeHumidity)
+            this.log.debug('CH | Updated CurrentRelativeHumidity to: %s', json.currentRelativeHumidity)
+          }
+          if (this.dhw) {
+            this.dhwService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.dhwTargetTemperature)
+            this.log.debug('DHW | Updated TargetTemperature to: %s', json.dhwTargetTemperature)
+            this.dhwService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.dhwCurrentTemperature)
+            this.log.debug('DHW | Updated CurrentTemperature to: %s', json.dhwCurrentTemperature)
+            this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.dhwTargetState)
+            this.log.debug('DHW | Updated TargetHeatingCoolingState to: %s', json.dhwTargetState)
+            this.dhwService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.dhwCurrentState)
+            this.log.debug('DHW | Updated CurrentHeatingCoolingState to: %s', json.dhwCurrentState)
+          }
+          callback()
+        } catch (e) {
+          this.log.warn('Error parsing status: %s', e.message)
         }
-        if (this.dhw) {
-          this.dhwService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.dhwTargetTemperature)
-          this.log.debug('DHW | Updated TargetTemperature to: %s', json.dhwTargetTemperature)
-          this.dhwService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.dhwCurrentTemperature)
-          this.log.debug('DHW | Updated CurrentTemperature to: %s', json.dhwCurrentTemperature)
-          this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(json.dhwTargetState)
-          this.log.debug('DHW | Updated TargetHeatingCoolingState to: %s', json.dhwTargetState)
-          this.dhwService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(json.dhwCurrentState)
-          this.log.debug('DHW | Updated CurrentHeatingCoolingState to: %s', json.dhwCurrentState)
-        }
-        callback()
       }
     }.bind(this))
   },
