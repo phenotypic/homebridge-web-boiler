@@ -58,6 +58,7 @@ Find script samples for the boiler controller in the _examples_ folder.
 | Key | Description | Default |
 | --- | --- | --- |
 | `pollInterval` | Time (in seconds) between device polls | `300` |
+| `checkupDelay` | Time (in milliseconds) after setting `HeatingCoolingState` to update `targetHeatingCoolingState` and `currentHeatingCoolingState` | `2000` |
 | `listener` | Whether to start a listener to get real-time changes from the device | `false` |
 | `timeout` | Time (in milliseconds) until the accessory will be marked as _Not Responding_ if it is unreachable | `3000` |
 | `port` | Port for your HTTP listener (if enabled) | `2000` |
