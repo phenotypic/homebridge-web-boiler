@@ -19,6 +19,7 @@ function Boiler (log, config) {
 
   this.listener = config.listener || false
   this.port = config.port || 2000
+  this.checkupDelay = config.checkupDelay || 2000
   this.requestArray = ['targetHeatingCoolingState', 'targetTemperature', 'dhwTargetState', 'dhwTargetTemperature']
 
   this.manufacturer = config.manufacturer || packageJson.author
@@ -170,6 +171,9 @@ Boiler.prototype = {
         callback(error)
       } else {
         this.log('CH | Set targetHeatingCoolingState to: %s', value)
+        setTimeout(function() {
+          this._getStatus(function () {})
+        }.bind(this), this.checkupDelay)
         callback()
       }
     }.bind(this))
@@ -201,6 +205,9 @@ Boiler.prototype = {
         callback(error)
       } else {
         this.log('DHW | Set targetHeatingCoolingState to: %s', value)
+        setTimeout(function() {
+          this._getStatus(function () {})
+        }.bind(this), this.checkupDelay)
         callback()
       }
     }.bind(this))
