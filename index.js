@@ -1,4 +1,4 @@
-var Service, Characteristic
+let Service, Characteristic
 const packageJson = require('./package.json')
 const request = require('request')
 const ip = require('ip')
@@ -53,12 +53,16 @@ function Boiler (log, config) {
 
   if (this.listener) {
     this.server = http.createServer(function (request, response) {
-      var baseURL = 'http://' + request.headers.host + '/'
-      var url = new URL(request.url, baseURL)
+      const baseURL = 'http://' + request.headers.host + '/'
+      const url = new URL(request.url, baseURL)
       if (this.requestArray.includes(url.pathname.substr(1))) {
-        this.log.debug('Handling request')
-        response.end('Handling request')
-        this._httpHandler(url.pathname.substr(1), url.searchParams.get('value'))
+        try {
+          this.log.debug('Handling request')
+          response.end('Handling request')
+          this._httpHandler(url.pathname.substr(1), url.searchParams.get('value'))
+        } catch (e) {
+          this.log.warn('Error parsing request: %s', e.message)
+        }
       } else {
         this.log.warn('Invalid request: %s', request.url)
         response.end('Invalid request')
@@ -93,7 +97,7 @@ Boiler.prototype = {
   },
 
   _getStatus: function (callback) {
-    var url = this.apiroute + '/status'
+    const url = this.apiroute + '/status'
     this.log.debug('Getting status: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -107,7 +111,7 @@ Boiler.prototype = {
       } else {
         this.log.debug('Device response: %s', responseBody)
         try {
-          var json = JSON.parse(responseBody)
+          const json = JSON.parse(responseBody)
           this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(json.targetTemperature)
           this.log.debug('CH | Updated TargetTemperature to: %s', json.targetTemperature)
           this.chService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(json.currentTemperature)
@@ -140,29 +144,34 @@ Boiler.prototype = {
 
   _httpHandler: function (characteristic, value) {
     switch (characteristic) {
-      case 'targetHeatingCoolingState':
+      case 'targetHeatingCoolingState': {
         this.chService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
         this.log('CH | Updated %s to: %s', characteristic, value)
         break
-      case 'targetTemperature':
+      }
+      case 'targetTemperature': {
         this.chService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
         this.log('CH | Updated %s to: %s', characteristic, value)
         break
-      case 'dhwTargetState':
+      }
+      case 'dhwTargetState': {
         this.dhwService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
         this.log('DHW | Updated %s to: %s', characteristic, value)
         break
-      case 'dhwTargetTemperature':
+      }
+      case 'dhwTargetTemperature': {
         this.dhwService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
         this.log('DHW | Updated %s to: %s', characteristic, value)
         break
-      default:
+      }
+      default: {
         this.log.warn('Unknown characteristic "%s" with value "%s"', characteristic, value)
+      }
     }
   },
 
   setTargetHeatingCoolingState: function (value, callback) {
-    var url = this.apiroute + '/targetHeatingCoolingState?value=' + value
+    const url = this.apiroute + '/targetHeatingCoolingState?value=' + value
     this.log.debug('CH | Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -171,7 +180,7 @@ Boiler.prototype = {
         callback(error)
       } else {
         this.log('CH | Set targetHeatingCoolingState to: %s', value)
-        setTimeout(function() {
+        setTimeout(function () {
           this._getStatus(function () {})
         }.bind(this), this.checkupDelay)
         callback()
@@ -181,7 +190,7 @@ Boiler.prototype = {
 
   setTargetTemperature: function (value, callback) {
     value = value.toFixed(1)
-    var url = this.apiroute + '/targetTemperature?value=' + value
+    const url = this.apiroute + '/targetTemperature?value=' + value
     this.log.debug('CH | Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -196,7 +205,7 @@ Boiler.prototype = {
   },
 
   setDHWState: function (value, callback) {
-    var url = this.apiroute + '/dhwTargetState?value=' + value
+    const url = this.apiroute + '/dhwTargetState?value=' + value
     this.log.debug('DHW | Setting targetHeatingCoolingState: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -205,7 +214,7 @@ Boiler.prototype = {
         callback(error)
       } else {
         this.log('DHW | Set targetHeatingCoolingState to: %s', value)
-        setTimeout(function() {
+        setTimeout(function () {
           this._getStatus(function () {})
         }.bind(this), this.checkupDelay)
         callback()
@@ -215,7 +224,7 @@ Boiler.prototype = {
 
   setDHWTemperature: function (value, callback) {
     value = value.toFixed(1)
-    var url = this.apiroute + '/dhwTargetTemperature?value=' + value
+    const url = this.apiroute + '/dhwTargetTemperature?value=' + value
     this.log.debug('DHW | Setting targetTemperature: %s', url)
 
     this._httpRequest(url, '', this.http_method, function (error, response, responseBody) {
@@ -256,7 +265,7 @@ Boiler.prototype = {
         minStep: this.minStep
       })
 
-    var services = [this.informationService, this.chService]
+    const services = [this.informationService, this.chService]
 
     if (this.dhw) {
       this.dhwService = new Service.Thermostat(this.dhwName, 2)
