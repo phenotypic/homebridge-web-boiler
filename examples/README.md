@@ -41,9 +41,15 @@ npm install -g homebridge-web-boiler
 
 ## Wiring
 
-![Diagram](https://i.ibb.co/rpHztcr/Untitled-1.jpg)
+**Note:** `OT Input` and `OT Output` refer to the input and output of the OpenTherm adapter circuit, _not_ direct connections to the boiler
 
-**Note:** `OT Input` and `OT Output` refer to the input and output of the OpenTherm adapter circuit and **not** direct connections to the boiler
+| NodeMCU | OpenTherm Adapter | DHT11  |
+| --- | --- | --- |
+| `D1` | `OT Input` | |
+| `D2` | `OT Output` | |
+| `3V3` | | `VCC (+)` |
+| `GND` | | `GND (-)` |
+| `D6` | | `OUT` |
 
 ## Tuning
 
