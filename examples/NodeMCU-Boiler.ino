@@ -48,7 +48,7 @@ unsigned long request, response, ts;
 
 // Variable declarations
 int currentHeatingCoolingState;
-float boilerCurrentTemp, boilerTargetTemp, ambientTemp, relativeHumidity;
+float boilerCurrentTemp, boilerTargetTemp, relativeHumidity;
 int dhwCurrentState;
 float dhwCurrentTemperature, dhwHigh, dhwLow;
 
