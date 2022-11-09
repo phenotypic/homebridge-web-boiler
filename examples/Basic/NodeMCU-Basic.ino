@@ -124,11 +124,11 @@ void loop() {
   MDNS.update();
 
   if (targetHeatingCoolingState) {
-    if (Input < lowerLim){
+    if (Input <= lowerLim){
       digitalWrite(relayPin, relayOn);
       currentHeatingCoolingState = 1;
     }
-    if (Input > upperLim) {
+    if (Input >= upperLim) {
       digitalWrite(relayPin, relayOff);
       currentHeatingCoolingState = 0;
     }
