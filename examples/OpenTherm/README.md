@@ -64,3 +64,4 @@ Once tuning is complete, you should note down the recommended values as they wil
 ## Notes
 
 - You can request `/diag` (diagnostics) from the NodeMCU via `curl` in order to receive more detailed information
+- May consider switching from PID to TPI (Time Proporcional and Integral) in the future - more efficient because it calculates boiler run times on the fly based on mathematical integrals (read more [here](https://salus-controls.eu/2021/03/07/learn-about-heating-control-algorithms/))
