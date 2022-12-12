@@ -11,7 +11,7 @@
 /////////////////// CHANGE THESE VALUES //////////////////////
 const char* ssid = "SSID"; // Name of your network
 const char* password = "PASSWORD"; // Password for your network
-double Setpoint = 22.0; // Initial heating setpoint
+double Setpoint = 19.0; // Initial heating setpoint
 double margin = 0.3; // Temperature hysteresis
 double stopFreeze = 10.0; // Antifreeze trigger temperature
 bool targetHeatingCoolingState = false; // Initial heating state
