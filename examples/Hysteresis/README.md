@@ -2,7 +2,9 @@
 
 This script is designed to interface with the plugin to expose a boiler. The script controls the boiler using a relay. See below:
 
-![image](https://guide.openenergymonitor.org/images/integrations/relay-hist.png)
+![image](https://www.sunnyheat-crea-systems.com/images/about_sunnyheat/hysterese_reg_en.png)
+
+For more refined heating control, please see the `OpenTherm` folder.
 
 ## Requirements
 
