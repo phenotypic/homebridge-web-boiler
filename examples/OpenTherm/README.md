@@ -2,6 +2,10 @@
 
 This script is designed to interface with the plugin to expose an [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-enabled boiler, giving you similar functionality to more expensive smart-home thermostats like [Nest](https://nest.com/thermostats/).
 
+Unlike temperature control via hysteresis, the OpenTherm protocol allows for smoother and more refined heating control via a PID controller:
+
+![image](https://www.sunnyheat-crea-systems.com/images/about_sunnyheat/sunnyheat_reg_en.png)
+
 ## Requirements
 
 * NodeMCU
