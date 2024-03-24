@@ -2,6 +2,8 @@
 
 This script is designed to interface with the plugin to expose an [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-enabled boiler, giving you similar functionality to more expensive smart-home thermostats like [Nest](https://nest.com/thermostats/).
 
+An [OpenTherm adapter](http://ihormelnyk.com/arduino_opentherm_controller) is required to connect the NodeMCU to the boiler. A PCB design is included in the `OpenTherm PCB` folder.
+
 Unlike temperature control via hysteresis, the OpenTherm protocol allows for smoother and more refined heating control via a PID controller:
 
 ![image](https://www.sunnyheat-crea-systems.com/images/about_sunnyheat/sunnyheat_reg_en.png)
@@ -12,7 +14,7 @@ Unlike temperature control via hysteresis, the OpenTherm protocol allows for smo
 
 * [OpenTherm](https://en.wikipedia.org/wiki/OpenTherm)-compatible appliance
 
-* [OpenTherm adapter](http://ihormelnyk.com/arduino_opentherm_controller)
+* [OpenTherm adapter](http://ihormelnyk.com/arduino_opentherm_controller) (PCB design included in the `OpenTherm PCB` folder)
 
 * DHT11 Temperature Sensor
 
