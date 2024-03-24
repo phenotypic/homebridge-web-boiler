@@ -14,7 +14,7 @@
 
 This [homebridge](https://github.com/homebridge/homebridge) plugin exposes a web-based boiler to Apple's [HomeKit](http://www.apple.com/ios/home/). Using simple HTTP requests, the plugin allows you to control your central heating as well as your hot water (if enabled in the `config.json`).
 
-See the `examples` folder for ready-to-use ESP8266 boiler control scripts, featuring both hysteresis and OpenTherm implementations. Hysteresis maintains the temperature within a set range, while OpenTherm controls temperature more precicely by modulating the boiler's output.
+See the `examples` folder for ready-to-use NodeMCU boiler control scripts, featuring both hysteresis and OpenTherm implementations. Hysteresis maintains the temperature within a set range, while OpenTherm controls temperature more precicely by modulating the boiler's output.
 
 ## Installation
 
